@@ -2,428 +2,228 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KICKS4U | Premium Footwear</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KICKS4U — Premium Footwear</title>
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
-*{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-    margin:0;
-    background:#f6f7fb;
-    color:#0f172a;
-    font-family:Inter,Arial,sans-serif;
-}
+body{font-family:Arial,sans-serif;background:#f6f7fb}
 body.lock{overflow:hidden}
-.hide-scroll::-webkit-scrollbar{display:none}
-.product-card{
-    transition:.25s ease;
-}
-.product-card:hover{
-    transform:translateY(-5px);
-    box-shadow:0 20px 45px rgba(15,23,42,.12);
-}
-.product-card img{
-    transition:.5s ease;
-}
-.product-card:hover img{
-    transform:scale(1.05);
-}
-.overlay{
-    background:rgba(2,6,23,.78);
-    backdrop-filter:blur(8px);
-}
-.thumb-active{
-    outline:3px solid #4f46e5;
-}
-.chat-shadow{
-    box-shadow:0 20px 70px rgba(0,0,0,.25);
-}
+.hidebar::-webkit-scrollbar{display:none}
+.card{transition:.25s}
+.card:hover{transform:translateY(-5px);box-shadow:0 18px 45px #0002}
+.overlay{background:#020617cc;backdrop-filter:blur(8px)}
 </style>
 </head>
 
-<body>
+<body class="text-slate-900">
 
-<!-- ================= NAVBAR ================= -->
-
+<!-- NAVBAR -->
 <nav class="sticky top-0 z-40 bg-slate-950 text-white shadow-xl">
-<div class="max-w-7xl mx-auto px-4 py-4">
-
-<div class="flex items-center gap-3">
+<div class="max-w-7xl mx-auto px-4 py-4 flex gap-3 items-center">
 
 <div class="font-black text-xl md:text-3xl tracking-widest">
 KICKS<span class="text-indigo-400">4U</span>
 </div>
 
 <div class="flex-1">
-<input
-id="search"
-oninput="renderProducts()"
-type="search"
+<input id="search" oninput="render()"
 placeholder="Search shoes, sneakers, slippers..."
-class="w-full rounded-full px-4 md:px-6 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500">
+class="w-full rounded-full px-4 py-3 text-slate-900 outline-none">
 </div>
 
-<button
-onclick="openOrders()"
-class="bg-indigo-600 hover:bg-indigo-500 px-4 py-3 rounded-xl font-bold whitespace-nowrap">
+<button onclick="openOrders()"
+class="bg-indigo-600 px-4 py-3 rounded-xl font-bold whitespace-nowrap">
 My Orders
 </button>
 
 </div>
-</div>
 </nav>
 
-
-<!-- ================= CATEGORY BAR ================= -->
-
+<!-- CATEGORIES -->
 <div class="sticky top-[68px] z-30 bg-white border-b shadow-sm">
-
-<div
-id="categoryBar"
-class="max-w-7xl mx-auto px-4 py-3 flex gap-2 overflow-x-auto hide-scroll">
+<div id="cats"
+class="max-w-7xl mx-auto p-3 flex gap-2 overflow-x-auto hidebar"></div>
 </div>
 
-</div>
-
-
-<!-- ================= HERO ================= -->
-
-<section class="max-w-7xl mx-auto px-4 pt-8">
-
-<div class="rounded-[30px] bg-slate-950 text-white overflow-hidden">
-
-<div class="p-8 md:p-14">
-
-<p class="text-indigo-400 font-black tracking-[.3em] text-sm">
-KICKS4U
-</p>
-
-<h1 class="text-4xl md:text-6xl font-black leading-tight mt-3">
-Premium footwear.<br>
-Simple shopping.
+<!-- HERO -->
+<section class="max-w-7xl mx-auto px-4 pt-7">
+<div class="rounded-[30px] bg-slate-950 text-white p-8 md:p-14">
+<p class="text-indigo-400 font-black tracking-[.3em]">KICKS4U</p>
+<h1 class="text-4xl md:text-6xl font-black mt-3">
+Premium Footwear.<br>Simple Shopping.
 </h1>
-
 <p class="text-slate-300 max-w-xl mt-5">
-Explore footwear, inspect product details, zoom product photos,
-pay online and track your order from My Orders.
+Browse footwear, inspect products, zoom images, pay online,
+track your order and download your invoice.
 </p>
 
-<div class="flex flex-wrap gap-3 mt-7">
-
-<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
-🔒 Secure Checkout
-</span>
-
-<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
-🚚 Within 14 Days
-</span>
-
-<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
-💳 Online Payment
-</span>
-
-<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
-💬 Live Support
-</span>
-
-</div>
-
+<div class="flex flex-wrap gap-2 mt-7">
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">🔒 Secure Checkout</span>
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">🚚 Within 14 Days</span>
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">💳 Online Payment</span>
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">💬 Support</span>
 </div>
 </div>
-
 </section>
 
-
-<!-- ================= STORE ================= -->
-
+<!-- PRODUCTS -->
 <main class="max-w-7xl mx-auto px-4 py-10">
-
 <div class="flex justify-between items-end mb-7">
-
 <div>
-
-<h2 class="text-3xl md:text-4xl font-black">
-Shop Footwear
-</h2>
-
-<p
-id="resultCount"
-class="text-sm text-slate-500 mt-1">
-</p>
-
+<h2 class="text-3xl md:text-4xl font-black">Shop Footwear</h2>
+<p id="count" class="text-sm text-slate-500 mt-1"></p>
 </div>
 
+<button onclick="openCart()"
+class="bg-slate-950 text-white px-5 py-3 rounded-xl font-black">
+🛒 Cart <span id="cartCount">0</span>
+</button>
 </div>
 
+<div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7"></div>
 
-<div
-id="productGrid"
-class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-</div>
-
-
-<div
-id="empty"
-class="hidden text-center py-24">
-
+<div id="empty" class="hidden text-center py-20">
 <div class="text-6xl">👟</div>
-
-<h3 class="text-xl font-black mt-4">
-No product found
-</h3>
-
-<p class="text-slate-500 mt-2">
-Try another search or category.
-</p>
-
+<h3 class="font-black text-xl mt-4">No products found</h3>
 </div>
-
 </main>
 
-
-<!-- ================= FOOTER ================= -->
-
-<footer class="bg-slate-950 text-slate-400 mt-12">
-
-<div class="max-w-7xl mx-auto px-4 py-12">
-
-<div class="grid md:grid-cols-3 gap-10">
+<!-- FOOTER -->
+<footer class="bg-slate-950 text-slate-400 p-10">
+<div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
 
 <div>
-
-<h3 class="text-white text-2xl font-black">
-KICKS4U
-</h3>
-
-<p class="mt-3 text-sm">
-Premium footwear shopping experience.
-</p>
-
+<h2 class="text-white text-2xl font-black">KICKS4U</h2>
+<p class="mt-3 text-sm">Premium footwear store.</p>
 </div>
 
-
 <div>
-
-<h4 class="text-white font-black">
-Policies
-</h4>
-
+<h3 class="text-white font-black">Store Policy</h3>
 <p class="text-sm mt-3 leading-7">
 COD: Not Available<br>
 Delivery: Within 14 Days<br>
 Replacement: Not Available<br>
 Payment: Online Only
 </p>
-
 </div>
-
 
 <div>
-
-<h4 class="text-white font-black">
-Support
-</h4>
-
-<p class="text-sm mt-3">
-WhatsApp: 6260155319
-</p>
-
-<a
-href="https://wa.me/916260155319"
+<h3 class="text-white font-black">Support</h3>
+<p class="mt-3">WhatsApp: 6260155319</p>
+<a href="https://wa.me/916260155319"
 target="_blank"
-class="inline-block mt-4 bg-green-600 hover:bg-green-500 text-white px-5 py-3 rounded-xl font-bold">
+class="inline-block mt-3 bg-green-600 text-white px-5 py-3 rounded-xl font-bold">
 WhatsApp Support
 </a>
-
 </div>
 
 </div>
 
-<div class="border-t border-slate-800 mt-10 pt-6 text-center text-sm">
-© 2026 KICKS4U. All rights reserved.
+<div class="text-center border-t border-slate-800 mt-8 pt-6 text-sm">
+© 2026 KICKS4U
 </div>
-
-</div>
-
 </footer>
 
 
-<!-- =====================================================
-     PRODUCT DETAILS MODAL
-===================================================== -->
-
-<div
-id="productModal"
+<!-- PRODUCT MODAL -->
+<div id="productModal"
 class="hidden fixed inset-0 z-50 overlay p-4 overflow-y-auto">
 
-<div class="max-w-6xl mx-auto bg-white rounded-[30px] overflow-hidden shadow-2xl">
+<div class="max-w-6xl mx-auto bg-white rounded-[30px] overflow-hidden">
 
 <div class="grid md:grid-cols-2">
 
-
 <!-- GALLERY -->
-
 <div class="p-5 md:p-8">
 
-<div class="relative rounded-3xl overflow-hidden bg-slate-100">
+<div class="relative bg-slate-100 rounded-3xl overflow-hidden">
 
-<img
-id="mainProductImage"
-onclick="zoomCurrentImage()"
+<img id="mainImg"
+onclick="zoomImage()"
 class="w-full aspect-square object-cover cursor-zoom-in">
 
-<button
-onclick="previousImage()"
-class="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 bg-white/90 rounded-full text-2xl font-black">
+<button onclick="prevImg()"
+class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full text-2xl">
 ‹
 </button>
 
-<button
-onclick="nextImage()"
-class="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 bg-white/90 rounded-full text-2xl font-black">
+<button onclick="nextImg()"
+class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white rounded-full text-2xl">
 ›
 </button>
 
 </div>
 
-
-<div
-id="thumbnails"
-class="flex gap-3 overflow-x-auto hide-scroll mt-4">
-</div>
-
-<p class="text-xs text-slate-400 mt-3">
-Tap image to zoom • Use arrows for other angles
-</p>
+<div id="thumbs"
+class="flex gap-3 overflow-x-auto hidebar mt-4"></div>
 
 </div>
 
-
-<!-- PRODUCT INFO -->
-
+<!-- DETAILS -->
 <div class="p-6 md:p-9">
 
-<div class="flex justify-between gap-4">
-
+<div class="flex justify-between">
 <div>
-
-<p
-id="modalCategory"
-class="text-xs text-indigo-600 font-black uppercase tracking-widest">
-</p>
-
-<h2
-id="modalName"
-class="text-3xl md:text-4xl font-black mt-2">
-</h2>
-
+<p id="pCat" class="text-xs text-indigo-600 font-black uppercase"></p>
+<h2 id="pName" class="text-3xl md:text-4xl font-black mt-2"></h2>
 </div>
 
-<button
-onclick="closeProduct()"
-class="h-10 w-10 rounded-full bg-slate-100 text-xl">
+<button onclick="closeProduct()"
+class="w-10 h-10 bg-slate-100 rounded-full text-xl">
 ×
 </button>
-
 </div>
 
+<p id="pPrice"
+class="text-4xl font-black text-indigo-600 mt-5"></p>
 
-<div class="flex items-end gap-3 mt-5">
-
-<p
-id="modalPrice"
-class="text-4xl font-black text-indigo-600">
-</p>
-
-<span class="text-xs text-green-600 font-bold mb-2">
-Online Payment
-</span>
-
-</div>
-
-
-<p
-id="modalDescription"
-class="text-slate-600 mt-5 leading-relaxed">
-</p>
-
-
-<!-- INFO -->
+<p id="pDesc"
+class="text-slate-600 leading-relaxed mt-5"></p>
 
 <div class="bg-slate-50 rounded-3xl p-5 mt-7">
-
-<h3 class="font-black text-lg">
-Product Information
-</h3>
+<h3 class="font-black">Product Information</h3>
 
 <div class="grid grid-cols-2 gap-5 mt-5">
 
 <div>
-<p class="text-xs text-slate-400 uppercase font-bold">
-Material
-</p>
-<p
-id="modalMaterial"
-class="font-bold mt-1">
-</p>
+<p class="text-xs text-slate-400 font-bold">MATERIAL</p>
+<p id="pMaterial" class="font-bold mt-1"></p>
 </div>
 
 <div>
-<p class="text-xs text-slate-400 uppercase font-bold">
-Recommended Use
-</p>
-<p
-id="modalUse"
-class="font-bold mt-1">
-</p>
+<p class="text-xs text-slate-400 font-bold">USE</p>
+<p id="pUse" class="font-bold mt-1"></p>
 </div>
 
 <div>
-<p class="text-xs text-slate-400 uppercase font-bold">
-Construction
-</p>
-<p
-id="modalConstruction"
-class="font-bold mt-1">
-</p>
+<p class="text-xs text-slate-400 font-bold">CONSTRUCTION</p>
+<p id="pConstruction" class="font-bold mt-1"></p>
 </div>
 
 <div>
-<p class="text-xs text-slate-400 uppercase font-bold">
-Care
-</p>
-<p
-id="modalCare"
-class="font-bold mt-1">
-</p>
+<p class="text-xs text-slate-400 font-bold">CARE</p>
+<p id="pCare" class="font-bold mt-1"></p>
 </div>
 
 </div>
-
 </div>
-
-
-<!-- POLICY -->
 
 <div class="border rounded-2xl p-4 mt-5 text-sm">
-
-<p class="font-black">
-Order Information
-</p>
-
-<p class="mt-2">🚚 Delivery within 14 days</p>
+<p>🚚 Delivery within 14 days</p>
 <p>💳 Online payment only</p>
 <p>✕ Replacement unavailable</p>
-
 </div>
 
+<div class="grid grid-cols-2 gap-3 mt-6">
 
-<button
-id="buyNowButton"
-class="w-full mt-6 bg-slate-950 hover:bg-indigo-600 text-white py-4 rounded-2xl font-black transition">
+<button onclick="addToCart()"
+class="border-2 border-slate-950 py-4 rounded-2xl font-black">
+ADD TO CART
+</button>
+
+<button onclick="buyNow()"
+class="bg-slate-950 text-white py-4 rounded-2xl font-black">
 BUY NOW
 </button>
 
@@ -432,661 +232,352 @@ BUY NOW
 </div>
 </div>
 </div>
+</div>
 
 
-<!-- ================= IMAGE ZOOM ================= -->
-
-<div
-id="zoomModal"
+<!-- ZOOM -->
+<div id="zoom"
 onclick="closeZoom()"
-class="hidden fixed inset-0 z-[80] bg-black/95 flex items-center justify-center p-4">
+class="hidden fixed inset-0 z-[90] bg-black/95 flex items-center justify-center p-4">
 
-<img
-id="zoomImage"
+<img id="zoomImg"
 class="max-w-full max-h-full object-contain">
 
 </div>
 
 
-<!-- =====================================================
-     CHECKOUT
-===================================================== -->
-
-<div
-id="checkoutModal"
+<!-- CART -->
+<div id="cartModal"
 class="hidden fixed inset-0 z-[60] overlay p-4 overflow-y-auto">
+
+<div class="max-w-xl mx-auto bg-white rounded-[30px] p-6">
+
+<div class="flex justify-between">
+<h2 class="text-3xl font-black">Your Cart</h2>
+<button onclick="closeCart()"
+class="w-10 h-10 bg-slate-100 rounded-full">×</button>
+</div>
+
+<div id="cartItems" class="mt-6 space-y-4"></div>
+
+<div class="border-t mt-6 pt-5 flex justify-between text-2xl font-black">
+<span>Total</span>
+<span id="cartTotal">₹0</span>
+</div>
+
+<button onclick="checkoutCart()"
+class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black mt-5">
+CHECKOUT
+</button>
+
+</div>
+</div>
+
+
+<!-- CHECKOUT -->
+<div id="checkoutModal"
+class="hidden fixed inset-0 z-[65] overlay p-4 overflow-y-auto">
 
 <div class="max-w-lg mx-auto bg-white rounded-[30px] p-6 md:p-8">
 
-<div class="flex justify-between items-center">
+<div class="flex justify-between">
+<h2 class="text-3xl font-black">Checkout</h2>
+
+<button onclick="closeCheckout()"
+class="w-10 h-10 bg-slate-100 rounded-full">×</button>
+</div>
+
+<div id="checkoutItems" class="mt-6"></div>
+
+<form id="checkoutForm" class="space-y-4 mt-6">
 
 <div>
-
-<h2 class="text-3xl font-black">
-Checkout
-</h2>
-
-<p class="text-sm text-slate-500 mt-1">
-Secure order details
-</p>
-
+<label class="font-bold text-sm">Full Name</label>
+<input id="name" required
+class="w-full border rounded-xl p-3 mt-1"
+placeholder="Your name">
 </div>
-
-<button
-onclick="closeCheckout()"
-class="h-10 w-10 bg-slate-100 rounded-full text-xl">
-×
-</button>
-
-</div>
-
-
-<div
-id="checkoutProduct"
-class="bg-slate-50 rounded-2xl p-4 mt-6">
-</div>
-
-
-<form
-id="checkoutForm"
-class="space-y-4 mt-6">
-
 
 <div>
-
-<label class="text-sm font-bold">
-Full Name
-</label>
-
-<input
-id="customerName"
-required
-autocomplete="name"
-class="w-full border rounded-xl p-3 mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
-placeholder="Your full name">
-
-</div>
-
-
-<div>
-
-<label class="text-sm font-bold">
-WhatsApp Number
-</label>
-
-<input
-id="customerPhone"
-required
+<label class="font-bold text-sm">WhatsApp Number</label>
+<input id="phone" required maxlength="10"
 inputmode="numeric"
-pattern="[0-9]{10}"
-maxlength="10"
-autocomplete="tel"
-class="w-full border rounded-xl p-3 mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
-placeholder="10-digit WhatsApp number">
-
+class="w-full border rounded-xl p-3 mt-1"
+placeholder="10-digit number">
 </div>
-
 
 <div>
-
-<div class="flex justify-between items-center">
-
-<label class="text-sm font-bold">
-Delivery Address
-</label>
-
-<button
-type="button"
-onclick="detectLocation()"
-class="text-indigo-600 text-xs font-black">
-📍 Use Google Location
-</button>
-
-</div>
-
-<textarea
-id="customerAddress"
-required
-rows="4"
-class="w-full border rounded-xl p-3 mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
-placeholder="House/Flat, Street, City, State, PIN"></textarea>
-
-<p
-id="locationStatus"
-class="text-xs text-slate-500 mt-1">
-</p>
-
-</div>
-
-
-<div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4">
 
 <div class="flex justify-between">
+<label class="font-bold text-sm">Delivery Address</label>
 
-<span class="font-bold">
-Product
-</span>
+<button type="button"
+onclick="getLocation()"
+class="text-indigo-600 text-xs font-black">
+📍 Google Location
+</button>
+</div>
 
-<span
-id="checkoutAmount"
-class="font-black">
-</span>
+<textarea id="address" required rows="4"
+class="w-full border rounded-xl p-3 mt-1"
+placeholder="House, street, city, state, PIN"></textarea>
+
+<p id="locationStatus"
+class="text-xs text-slate-500 mt-1"></p>
 
 </div>
 
-<div class="flex justify-between mt-2">
+<div class="bg-indigo-50 rounded-2xl p-4">
 
-<span class="font-bold">
-Delivery
-</span>
-
-<span class="text-green-600 font-bold">
-FREE
-</span>
-
-</div>
-
-<div class="border-t border-indigo-200 mt-3 pt-3 flex justify-between">
-
-<span class="font-black">
-Total
-</span>
-
-<span
-id="checkoutTotal"
-class="font-black text-xl text-indigo-600">
-</span>
-
+<div class="flex justify-between font-black">
+<span>Total</span>
+<span id="checkoutTotal"></span>
 </div>
 
 </div>
 
-
-<div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm">
-
-<p class="font-black">
-Before Payment
-</p>
-
-<p class="mt-2">
-✓ COD is disabled
-</p>
-
-<p>
-✓ Online payment only
-</p>
-
-<p>
-✓ Delivery within 14 days
-</p>
-
-<p>
+<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
+✓ COD disabled<br>
+✓ Online payment only<br>
+✓ Delivery within 14 days<br>
 ✓ No replacement
-</p>
-
 </div>
-
 
 <button
-type="submit"
-class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black">
+class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black">
 CONTINUE TO PAYMENT
 </button>
 
 </form>
-
+</div>
 </div>
 
-</div>
 
-
-<!-- =====================================================
-     PAYMENT MODAL
-===================================================== -->
-
-<div
-id="paymentModal"
+<!-- PAYMENT -->
+<div id="paymentModal"
 class="hidden fixed inset-0 z-[70] overlay p-4 overflow-y-auto">
 
 <div class="max-w-md mx-auto bg-white rounded-[30px] p-6 md:p-8">
 
 <div class="flex justify-between">
-
 <div>
-
-<h2 class="text-3xl font-black">
-Pay Securely
-</h2>
-
-<p
-id="paymentOrderId"
-class="text-xs text-slate-500 mt-1">
-</p>
-
+<h2 class="text-3xl font-black">Payment</h2>
+<p id="payOrder" class="text-xs text-slate-500"></p>
 </div>
 
-<button
-onclick="closePayment()"
-class="h-10 w-10 bg-slate-100 rounded-full">
-×
-</button>
-
+<button onclick="closePayment()"
+class="w-10 h-10 bg-slate-100 rounded-full">×</button>
 </div>
-
 
 <div class="text-center mt-6">
 
-<p class="text-sm text-slate-500">
-Amount Payable
-</p>
+<p class="text-sm text-slate-500">Amount</p>
+<p id="payAmount"
+class="text-4xl font-black text-indigo-600"></p>
 
-<p
-id="paymentAmount"
-class="text-4xl font-black text-indigo-600 mt-1">
-</p>
+<div class="bg-slate-50 rounded-3xl p-5 mt-5">
 
+<p class="font-black">Scan UPI QR</p>
 
-<div class="bg-slate-50 rounded-3xl p-5 mt-6">
+<img id="qr"
+class="w-60 h-60 mx-auto mt-4 rounded-2xl">
 
-<p class="font-black">
-Scan UPI QR
-</p>
-
-<img
-id="upiQr"
-class="w-56 h-56 mx-auto mt-4 rounded-2xl"
-alt="KICKS4U UPI QR">
-
-<p class="text-xs text-slate-500 mt-3">
-UPI ID
-</p>
-
-<p class="font-black">
-6260155319@upi
-</p>
+<p class="text-xs text-slate-500 mt-3">UPI ID</p>
+<p class="font-black">6260155319@upi</p>
 
 </div>
 
-
-<a
-id="upiPayButton"
-class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center py-4 rounded-2xl font-black mt-5"
-href="#">
+<a id="upiButton"
+class="block text-center bg-indigo-600 text-white py-4 rounded-2xl font-black mt-5">
 OPEN UPI APP
 </a>
 
-
-<button
-onclick="showPaymentHelp()"
-class="w-full border border-slate-200 py-3 rounded-2xl font-bold mt-3">
-Payment Help
-</button>
-
-
-<div
-id="paymentHelp"
-class="hidden bg-slate-50 rounded-2xl p-4 mt-4 text-left text-sm">
-
-<p class="font-black">
-How to pay
-</p>
-
-<p class="mt-2">
-1. Scan the QR or tap Open UPI App.
-</p>
-
-<p>
-2. Complete payment in your UPI app.
-</p>
-
-<p>
-3. Keep your transaction/UTR ID.
-</p>
-
-<p>
-4. Send the UTR on WhatsApp for order verification.
-</p>
-
-</div>
-
-
-<button
-onclick="sendPaymentConfirmation()"
-class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-black mt-4">
+<button onclick="sendWhatsApp()"
+class="w-full bg-green-600 text-white py-4 rounded-2xl font-black mt-4">
 SEND PAYMENT DETAILS ON WHATSAPP
 </button>
 
-<p class="text-[11px] text-slate-400 mt-4">
-Payment status is confirmed only after actual transaction verification.
+<p class="text-xs text-slate-400 mt-4">
+Payment will only be confirmed after actual transaction verification.
 </p>
 
 </div>
-
+</div>
 </div>
 
-</div>
 
+<!-- ORDERS -->
+<div id="ordersModal"
+class="hidden fixed inset-0 z-[75] overlay p-4 overflow-y-auto">
 
-<!-- =====================================================
-     MY ORDERS
-===================================================== -->
-
-<div
-id="ordersModal"
-class="hidden fixed inset-0 z-[65] overlay p-4 overflow-y-auto">
-
-<div class="max-w-xl mx-auto bg-white rounded-[30px] p-6 md:p-8">
+<div class="max-w-xl mx-auto bg-white rounded-[30px] p-6">
 
 <div class="flex justify-between">
+<h2 class="text-3xl font-black">My Orders</h2>
 
-<div>
-
-<h2 class="text-3xl font-black">
-My Orders
-</h2>
-
-<p class="text-sm text-slate-500 mt-1">
-Use your WhatsApp number
-</p>
-
+<button onclick="closeOrders()"
+class="w-10 h-10 bg-slate-100 rounded-full">×</button>
 </div>
-
-<button
-onclick="closeOrders()"
-class="h-10 w-10 bg-slate-100 rounded-full">
-×
-</button>
-
-</div>
-
 
 <div class="flex gap-2 mt-6">
 
-<input
-id="orderPhone"
+<input id="orderSearch"
 maxlength="10"
-inputmode="numeric"
 class="flex-1 border rounded-xl p-3"
-placeholder="10-digit number">
+placeholder="WhatsApp number">
 
-<button
-onclick="findOrders()"
+<button onclick="findOrders()"
 class="bg-slate-950 text-white px-5 rounded-xl font-bold">
 Search
 </button>
 
 </div>
 
-
-<div
-id="ordersList"
-class="mt-6 space-y-4">
-</div>
+<div id="orders" class="mt-6 space-y-4"></div>
 
 </div>
-
 </div>
 
 
-<!-- =====================================================
-     INVOICE
-===================================================== -->
+<!-- INVOICE -->
+<div id="invoiceModal"
+class="hidden fixed inset-0 z-[100] bg-slate-900/80 p-4 overflow-y-auto">
 
-<div
-id="invoiceModal"
-class="hidden fixed inset-0 z-[90] bg-slate-900/80 p-4 overflow-y-auto">
+<div id="invoice"
+class="max-w-2xl mx-auto bg-white rounded-2xl p-8">
 
-<div
-id="invoice"
-class="max-w-2xl mx-auto bg-white rounded-2xl p-7 md:p-10">
-
-<div class="flex justify-between items-start border-b pb-6">
+<div class="flex justify-between border-b pb-6">
 
 <div>
-
 <h1 class="text-3xl font-black">
 KICKS<span class="text-indigo-600">4U</span>
 </h1>
-
-<p class="text-sm text-slate-500 mt-1">
-Premium Footwear Store
-</p>
-
+<p class="text-sm text-slate-500">Premium Footwear</p>
 </div>
 
 <div class="text-right">
-
-<p class="font-black">
-INVOICE
-</p>
-
-<p
-id="invoiceId"
-class="text-sm text-slate-500">
-</p>
-
-<p
-id="invoiceDate"
-class="text-sm text-slate-500">
-</p>
-
+<b>INVOICE</b>
+<p id="invId" class="text-xs text-slate-500"></p>
+<p id="invDate" class="text-xs text-slate-500"></p>
 </div>
 
 </div>
-
 
 <div class="grid md:grid-cols-2 gap-6 py-6 border-b">
 
 <div>
-
-<p class="text-xs text-slate-400 font-bold uppercase">
-Customer
-</p>
-
-<p
-id="invoiceCustomer"
-class="font-bold mt-2">
-</p>
-
-<p
-id="invoicePhone"
-class="text-sm text-slate-600">
-</p>
-
+<p class="text-xs text-slate-400 font-bold">CUSTOMER</p>
+<p id="invName" class="font-bold mt-2"></p>
+<p id="invPhone" class="text-sm"></p>
 </div>
-
 
 <div>
-
-<p class="text-xs text-slate-400 font-bold uppercase">
-Delivery Address
-</p>
-
-<p
-id="invoiceAddress"
-class="text-sm mt-2 whitespace-pre-line">
-</p>
-
+<p class="text-xs text-slate-400 font-bold">ADDRESS</p>
+<p id="invAddress"
+class="text-sm mt-2 whitespace-pre-line"></p>
 </div>
 
 </div>
 
-
-<div class="py-6 border-b">
-
-<div class="flex justify-between font-black">
-
-<span>Product</span>
-<span>Amount</span>
-
+<div class="py-6 border-b flex justify-between">
+<span id="invProduct"></span>
+<span id="invAmount"></span>
 </div>
-
-<div class="flex justify-between mt-4">
-
-<span id="invoiceProduct"></span>
-
-<span id="invoiceAmount"></span>
-
-</div>
-
-<div class="flex justify-between mt-3 text-slate-500">
-
-<span>Delivery</span>
-
-<span>FREE</span>
-
-</div>
-
-</div>
-
 
 <div class="flex justify-between text-2xl font-black py-6">
-
 <span>Total</span>
-
-<span
-id="invoiceTotal"
-class="text-indigo-600">
-</span>
-
+<span id="invTotal" class="text-indigo-600"></span>
 </div>
 
-
-<div class="bg-slate-50 rounded-xl p-4 text-sm">
-
-<p>
-Payment: Online Payment
-</p>
-
-<p>
-COD: Not Available
-</p>
-
-<p>
-Delivery: Within 14 Days
-</p>
-
-<p>
+<div class="bg-slate-50 p-4 rounded-xl text-sm">
+Payment: Online Payment<br>
+COD: Not Available<br>
+Delivery: Within 14 Days<br>
 Replacement: Not Available
-</p>
-
 </div>
-
 
 <div class="flex gap-3 mt-6">
-
-<button
-onclick="printInvoice()"
+<button onclick="printInvoice()"
 class="flex-1 bg-slate-950 text-white py-3 rounded-xl font-bold">
 Print / Save PDF
 </button>
 
-<button
-onclick="closeInvoice()"
-class="px-5 border rounded-xl font-bold">
+<button onclick="closeInvoice()"
+class="px-5 border rounded-xl">
 Close
 </button>
-
 </div>
 
 </div>
-
 </div>
 
 
-<!-- =====================================================
-     SUPPORT CHAT
-===================================================== -->
-
-<button
-onclick="toggleChat()"
-class="fixed bottom-5 right-5 z-40 h-14 w-14 rounded-full bg-indigo-600 text-white text-2xl shadow-2xl">
+<!-- CHAT -->
+<button onclick="toggleChat()"
+class="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full bg-indigo-600 text-white text-2xl shadow-xl">
 💬
 </button>
 
-
-<div
-id="chatWindow"
-class="hidden fixed bottom-24 right-5 z-40 w-[360px] max-w-[calc(100vw-30px)] bg-white rounded-3xl overflow-hidden chat-shadow">
+<div id="chat"
+class="hidden fixed bottom-24 right-5 z-40 w-[360px] max-w-[calc(100vw-30px)] bg-white rounded-3xl shadow-2xl overflow-hidden">
 
 <div class="bg-slate-950 text-white p-4">
-
-<div class="font-black">
-KICKS4U Support
+<b>KICKS4U Support</b>
+<p class="text-xs text-slate-400">Automatic assistant</p>
 </div>
 
-<div class="text-xs text-slate-400">
-Automated assistant
-</div>
-
-</div>
-
-
-<div
-id="chatMessages"
+<div id="messages"
 class="h-80 overflow-y-auto p-4 space-y-3">
 
 <div class="bg-slate-100 rounded-xl p-3 text-sm">
-Hi 👋 I can help with payment, delivery, orders, address and store policies.
+Hi 👋 Payment, delivery, orders, invoices aur policies ke baare mein pooch sakte ho.
 </div>
 
 </div>
 
-
-<form
-onsubmit="sendChat(event)"
+<form onsubmit="chatSend(event)"
 class="border-t p-3 flex gap-2">
 
-<input
-id="chatInput"
-required
-class="flex-1 border rounded-xl px-3 py-2 outline-none"
-placeholder="Ask something...">
+<input id="chatInput" required
+class="flex-1 border rounded-xl px-3 py-2"
+placeholder="Ask support...">
 
-<button
-class="bg-indigo-600 text-white px-4 rounded-xl">
+<button class="bg-indigo-600 text-white px-4 rounded-xl">
 ➤
 </button>
 
 </form>
-
 </div>
 
 
 <script>
 
-/* =====================================================
-   KICKS4U CONFIG
-===================================================== */
+/* ================================
+   CONFIG
+================================ */
 
-const UPI_ID = "6260155319@upi";
-const WHATSAPP = "916260155319";
+const UPI="6260155319@upi";
+const WHATSAPP="916260155319";
 
 
-/* =====================================================
+/* ================================
    PRODUCTS
-   Replace image arrays with actual FRONT/SIDE/BACK/TOP/SOLE
-   photos for your own products.
-===================================================== */
+================================ */
 
-const products = [
+const products=[
 
 {
 id:"K4U001",
 category:"Sneakers",
 name:"Urban Street X1",
 price:1499,
-description:"Modern everyday sneaker with lightweight cushioning and breathable construction.",
+desc:"Modern everyday sneaker with lightweight cushioning and breathable construction.",
 material:"Engineered mesh + synthetic leather",
 use:"Daily / Casual",
-construction:"Cushioned EVA sole",
-care:"Clean using a soft brush and keep dry",
+construction:"EVA cushioned sole",
+care:"Soft brush and keep dry",
 images:[
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90",
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90",
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90",
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90",
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90"
+"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1400&q=90"
 ]
 },
 
@@ -1095,17 +586,13 @@ id:"K4U002",
 category:"Running",
 name:"Velocity Runner Pro",
 price:1899,
-description:"Lightweight running shoe designed for everyday training and active use.",
+desc:"Lightweight running shoe designed for daily training and active use.",
 material:"Breathable mesh",
 use:"Running / Training",
 construction:"EVA cushioning + rubber outsole",
 care:"Air dry after cleaning",
 images:[
-"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
-"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
-"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
-"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
-"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90"
+"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1400&q=90"
 ]
 },
 
@@ -1114,17 +601,13 @@ id:"K4U003",
 category:"Formal",
 name:"Executive Derby",
 price:2199,
-description:"Classic formal footwear with a clean silhouette for office and special occasions.",
+desc:"Classic formal footwear with a clean premium silhouette.",
 material:"Synthetic leather",
 use:"Office / Formal",
 construction:"Cushioned insole + rubber outsole",
-care:"Wipe with a soft cloth",
+care:"Wipe with soft cloth",
 images:[
-"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
-"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
-"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
-"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
-"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90"
+"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1400&q=90"
 ]
 },
 
@@ -1133,17 +616,13 @@ id:"K4U004",
 category:"Boots",
 name:"Urban Trek Boots",
 price:2499,
-description:"High-ankle everyday boots with durable outsole and structured construction.",
+desc:"High-ankle everyday boots with a durable outsole.",
 material:"Synthetic leather",
 use:"Casual / Outdoor",
 construction:"Rubber outsole",
-care:"Clean and store away from moisture",
+care:"Keep away from moisture",
 images:[
-"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1200&q=90",
-"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1200&q=90",
-"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1200&q=90",
-"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1200&q=90",
-"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1200&q=90"
+"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1400&q=90"
 ]
 },
 
@@ -1152,17 +631,13 @@ id:"K4U005",
 category:"Sandals",
 name:"Comfort Cross Sandal",
 price:699,
-description:"Lightweight everyday sandal with comfortable footbed.",
+desc:"Lightweight everyday sandal with comfortable footbed.",
 material:"EVA + synthetic straps",
 use:"Daily / Casual",
 construction:"Flexible EVA footbed",
 care:"Wash gently and air dry",
 images:[
-"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90",
-"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90",
-"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90",
-"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90",
-"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90"
+"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1400&q=90"
 ]
 },
 
@@ -1171,17 +646,13 @@ id:"K4U006",
 category:"Slippers",
 name:"Cloud Comfort Slide",
 price:499,
-description:"Soft lightweight slide designed for relaxed everyday wear.",
+desc:"Soft lightweight slide designed for relaxed everyday wear.",
 material:"EVA foam",
 use:"Home / Casual",
 construction:"Lightweight EVA sole",
 care:"Clean with mild soap and water",
 images:[
-"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90",
-"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90",
-"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90",
-"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90",
-"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90"
+"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1400&q=90"
 ]
 },
 
@@ -1190,17 +661,13 @@ id:"K4U007",
 category:"Casual",
 name:"Daily Canvas Classic",
 price:999,
-description:"Minimal casual footwear designed for everyday outfits.",
+desc:"Minimal casual footwear designed for everyday outfits.",
 material:"Canvas upper",
 use:"Daily / Casual",
 construction:"Rubber outsole",
 care:"Spot clean only",
 images:[
-"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90",
-"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90",
-"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90",
-"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90",
-"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90"
+"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1400&q=90"
 ]
 },
 
@@ -1209,38 +676,33 @@ id:"K4U008",
 category:"Slippers",
 name:"Everyday Comfort Chappal",
 price:399,
-description:"Simple lightweight footwear for everyday use.",
+desc:"Simple lightweight footwear for everyday use.",
 material:"Rubber",
 use:"Daily Wear",
 construction:"Flexible rubber sole",
 care:"Wash and air dry",
 images:[
-"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1200&q=90",
-"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1200&q=90",
-"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1200&q=90",
-"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1200&q=90",
-"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1200&q=90"
+"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1400&q=90"
 ]
 }
 
 ];
 
 
-/* =====================================================
+/* ================================
    STATE
-===================================================== */
+================================ */
 
-let activeCategory="All";
-let selectedProduct=null;
+let category="All";
+let selected=null;
 let imageIndex=0;
+let cart=[];
 let currentOrder=null;
 
 
-/* =====================================================
-   CATEGORIES
-===================================================== */
-
-function createCategories(){
+/* ================================
+   CATEGORY
+================================ */
 
 const categories=[
 "All",
@@ -1253,214 +715,132 @@ const categories=[
 "Casual"
 ];
 
-document.getElementById("categoryBar").innerHTML=
-
-categories.map(category=>`
+document.getElementById("cats").innerHTML=
+categories.map(c=>`
 
 <button
-onclick="setCategory('${category}')"
-data-category="${category}"
-class="category-btn whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm
-${category==="All"
+onclick="setCategory('${c}')"
+data-cat="${c}"
+class="cat whitespace-nowrap px-5 py-2.5 rounded-full font-bold text-sm
+${c==="All"
 ?"bg-slate-950 text-white"
-:"bg-slate-100 text-slate-700"}">
+:"bg-slate-100"}">
 
-${category==="All"?"All Footwear":category}
+${c==="All"?"All Footwear":c}
 
 </button>
 
 `).join("");
 
-}
 
+function setCategory(c){
 
-/* =====================================================
-   RENDER PRODUCTS
-===================================================== */
+category=c;
 
-function renderProducts(){
+document.querySelectorAll(".cat").forEach(x=>{
 
-const term=
-document.getElementById("search")
-.value
-.toLowerCase()
-.trim();
+const active=x.dataset.cat===c;
 
-
-const filtered=products.filter(product=>{
-
-const categoryMatch=
-activeCategory==="All" ||
-product.category===activeCategory;
-
-const searchMatch=
-!term ||
-product.name.toLowerCase().includes(term) ||
-product.category.toLowerCase().includes(term) ||
-product.description.toLowerCase().includes(term);
-
-return categoryMatch && searchMatch;
+x.classList.toggle("bg-slate-950",active);
+x.classList.toggle("text-white",active);
+x.classList.toggle("bg-slate-100",!active);
 
 });
 
+render();
 
-document.getElementById("resultCount").textContent=
-`${filtered.length} products available`;
+}
 
+
+/* ================================
+   RENDER
+================================ */
+
+function render(){
+
+const q=document.getElementById("search")
+.value.toLowerCase().trim();
+
+const list=products.filter(p=>
+(category==="All"||p.category===category)&&
+(!q||
+p.name.toLowerCase().includes(q)||
+p.category.toLowerCase().includes(q)||
+p.desc.toLowerCase().includes(q))
+);
+
+document.getElementById("count").textContent=
+`${list.length} products available`;
 
 document.getElementById("empty")
-.classList.toggle("hidden",filtered.length>0);
+.classList.toggle("hidden",list.length>0);
 
+document.getElementById("grid").innerHTML=
+list.map(p=>`
 
-document.getElementById("productGrid").innerHTML=
+<div class="card bg-white rounded-[28px] overflow-hidden border">
 
-filtered.map(product=>`
-
-<article class="product-card bg-white rounded-[28px] overflow-hidden border border-slate-100">
-
-<div class="relative overflow-hidden bg-slate-100">
-
-<img
-src="${product.images[0]}"
-alt="${product.name}"
-loading="lazy"
+<img src="${p.images[0]}"
 class="w-full aspect-[4/3] object-cover">
-
-<span
-class="absolute top-4 left-4 bg-white/95 px-3 py-1.5 rounded-full text-xs font-black uppercase">
-${product.category}
-</span>
-
-</div>
-
 
 <div class="p-6">
 
-<h3 class="text-xl md:text-2xl font-black">
-${product.name}
-</h3>
+<span class="text-xs font-black text-indigo-600 uppercase">
+${p.category}
+</span>
 
-<p class="text-sm text-slate-500 mt-2 leading-relaxed">
-${product.description}
-</p>
+<h3 class="text-xl font-black mt-2">${p.name}</h3>
 
+<p class="text-sm text-slate-500 mt-2">${p.desc}</p>
 
-<div class="flex items-end justify-between gap-3 mt-6">
+<div class="flex justify-between items-end mt-6">
 
 <div>
-
 <p class="text-3xl font-black">
-₹${product.price.toLocaleString("en-IN")}
+₹${p.price.toLocaleString("en-IN")}
 </p>
-
-<p class="text-xs text-green-600 font-bold mt-1">
+<p class="text-xs text-green-600 font-bold">
 Online Payment
 </p>
-
 </div>
 
-
-<button
-onclick="openProduct('${product.id}')"
-class="bg-slate-950 hover:bg-indigo-600 text-white px-5 py-3.5 rounded-xl font-black transition">
-
-VIEW PRODUCT
-
+<button onclick="openProduct('${p.id}')"
+class="bg-slate-950 hover:bg-indigo-600 text-white px-5 py-3 rounded-xl font-black">
+VIEW
 </button>
 
 </div>
-
 </div>
-
-</article>
+</div>
 
 `).join("");
 
-}
-
-
-/* =====================================================
-   CATEGORY
-===================================================== */
-
-function setCategory(category){
-
-activeCategory=category;
-
-document.querySelectorAll(".category-btn")
-.forEach(button=>{
-
-const active=
-button.dataset.category===category;
-
-button.classList.toggle(
-"bg-slate-950",
-active
-);
-
-button.classList.toggle(
-"text-white",
-active
-);
-
-button.classList.toggle(
-"bg-slate-100",
-!active
-);
-
-button.classList.toggle(
-"text-slate-700",
-!active
-);
-
-});
-
-renderProducts();
+updateCartCount();
 
 }
 
 
-/* =====================================================
-   PRODUCT MODAL
-===================================================== */
+/* ================================
+   PRODUCT
+================================ */
 
 function openProduct(id){
 
-selectedProduct=
-products.find(p=>p.id===id);
-
+selected=products.find(p=>p.id===id);
 imageIndex=0;
 
-document.getElementById("modalCategory")
-.textContent=selectedProduct.category;
-
-document.getElementById("modalName")
-.textContent=selectedProduct.name;
-
-document.getElementById("modalPrice")
-.textContent=
-"₹"+selectedProduct.price.toLocaleString("en-IN");
-
-document.getElementById("modalDescription")
-.textContent=selectedProduct.description;
-
-document.getElementById("modalMaterial")
-.textContent=selectedProduct.material;
-
-document.getElementById("modalUse")
-.textContent=selectedProduct.use;
-
-document.getElementById("modalConstruction")
-.textContent=selectedProduct.construction;
-
-document.getElementById("modalCare")
-.textContent=selectedProduct.care;
+pCat.textContent=selected.category;
+pName.textContent=selected.name;
+pPrice.textContent="₹"+selected.price.toLocaleString("en-IN");
+pDesc.textContent=selected.desc;
+pMaterial.textContent=selected.material;
+pUse.textContent=selected.use;
+pConstruction.textContent=selected.construction;
+pCare.textContent=selected.care;
 
 updateGallery();
 
-document.getElementById("productModal")
-.classList.remove("hidden");
-
+productModal.classList.remove("hidden");
 document.body.classList.add("lock");
 
 }
@@ -1468,212 +848,243 @@ document.body.classList.add("lock");
 
 function updateGallery(){
 
-document.getElementById("mainProductImage")
-.src=selectedProduct.images[imageIndex];
+mainImg.src=selected.images[imageIndex];
 
-
-document.getElementById("thumbnails").innerHTML=
-
-selectedProduct.images.map((image,index)=>`
-
-<button onclick="selectImage(${index})">
-
-<img
-src="${image}"
-class="w-20 h-20 rounded-xl object-cover
-${index===imageIndex?"thumb-active":""}">
-
+thumbs.innerHTML=selected.images.map((im,i)=>`
+<button onclick="selectImg(${i})">
+<img src="${im}"
+class="w-20 h-20 rounded-xl object-cover ${i===imageIndex?"ring-4 ring-indigo-500":""}">
 </button>
-
 `).join("");
 
 }
 
-
-function selectImage(index){
-
-imageIndex=index;
+function selectImg(i){
+imageIndex=i;
 updateGallery();
-
 }
 
-
-function nextImage(){
-
-imageIndex=
-(imageIndex+1)%selectedProduct.images.length;
-
+function nextImg(){
+imageIndex=(imageIndex+1)%selected.images.length;
 updateGallery();
-
 }
 
-
-function previousImage(){
-
-imageIndex=
-(imageIndex-1+selectedProduct.images.length)
-%selectedProduct.images.length;
-
+function prevImg(){
+imageIndex=(imageIndex-1+selected.images.length)%selected.images.length;
 updateGallery();
-
 }
-
 
 function closeProduct(){
-
-document.getElementById("productModal")
-.classList.add("hidden");
-
+productModal.classList.add("hidden");
 document.body.classList.remove("lock");
-
 }
 
-
-/* =====================================================
-   ZOOM
-===================================================== */
-
-function zoomCurrentImage(){
-
-document.getElementById("zoomImage")
-.src=selectedProduct.images[imageIndex];
-
-document.getElementById("zoomModal")
-.classList.remove("hidden");
-
+function zoomImage(){
+zoomImg.src=selected.images[imageIndex];
+zoom.classList.remove("hidden");
 }
-
 
 function closeZoom(){
+zoom.classList.add("hidden");
+}
 
-document.getElementById("zoomModal")
-.classList.add("hidden");
+
+/* ================================
+   CART
+================================ */
+
+function addToCart(){
+
+if(!selected)return;
+
+cart.push(selected);
+
+updateCartCount();
+
+alert("Added to cart ✓");
 
 }
 
 
-/* =====================================================
-   CHECKOUT
-===================================================== */
-
-document.getElementById("buyNowButton")
-.addEventListener("click",()=>{
-
-if(!selectedProduct)return;
-
-closeProduct();
-
-document.getElementById("checkoutProduct")
-.innerHTML=`
-
-<div class="flex items-center gap-4">
-
-<img
-src="${selectedProduct.images[0]}"
-class="w-24 h-24 rounded-2xl object-cover">
-
-<div>
-
-<p class="font-black">
-${selectedProduct.name}
-</p>
-
-<p class="text-2xl font-black text-indigo-600 mt-1">
-₹${selectedProduct.price.toLocaleString("en-IN")}
-</p>
-
-</div>
-
-</div>
-
-`;
+function updateCartCount(){
+cartCount.textContent=cart.length;
+}
 
 
-document.getElementById("checkoutAmount")
-.textContent=
-"₹"+selectedProduct.price.toLocaleString("en-IN");
+function openCart(){
 
+renderCart();
 
-document.getElementById("checkoutTotal")
-.textContent=
-"₹"+selectedProduct.price.toLocaleString("en-IN");
-
-
-document.getElementById("checkoutModal")
-.classList.remove("hidden");
-
+cartModal.classList.remove("hidden");
 document.body.classList.add("lock");
 
-});
+}
 
 
-function closeCheckout(){
+function closeCart(){
 
-document.getElementById("checkoutModal")
-.classList.add("hidden");
-
+cartModal.classList.add("hidden");
 document.body.classList.remove("lock");
 
 }
 
 
-/* =====================================================
-   GOOGLE MAP LOCATION
-===================================================== */
+function renderCart(){
 
-function detectLocation(){
+if(!cart.length){
 
-const status=
-document.getElementById("locationStatus");
+cartItems.innerHTML=`
+<div class="text-center py-12 text-slate-500">
+Your cart is empty.
+</div>`;
 
-
-if(!navigator.geolocation){
-
-status.textContent=
-"Location is not supported. Enter address manually.";
-
+cartTotal.textContent="₹0";
 return;
 
 }
 
+cartItems.innerHTML=cart.map((p,i)=>`
 
-status.textContent=
-"Requesting Google Maps location permission...";
+<div class="flex gap-4 border rounded-2xl p-3">
 
+<img src="${p.images[0]}"
+class="w-20 h-20 object-cover rounded-xl">
+
+<div class="flex-1">
+
+<p class="font-black">${p.name}</p>
+
+<p class="font-bold text-indigo-600">
+₹${p.price.toLocaleString("en-IN")}
+</p>
+
+</div>
+
+<button onclick="removeCart(${i})"
+class="text-red-500 font-black">
+×
+</button>
+
+</div>
+
+`).join("");
+
+const total=cart.reduce((s,p)=>s+p.price,0);
+
+cartTotal.textContent=
+"₹"+total.toLocaleString("en-IN");
+
+}
+
+
+function removeCart(i){
+
+cart.splice(i,1);
+renderCart();
+updateCartCount();
+
+}
+
+
+function buyNow(){
+
+cart=[selected];
+closeProduct();
+checkoutCart();
+
+}
+
+
+/* ================================
+   CHECKOUT
+================================ */
+
+function checkoutCart(){
+
+if(!cart.length){
+
+alert("Cart is empty.");
+return;
+
+}
+
+closeCart();
+
+checkoutItems.innerHTML=
+cart.map(p=>`
+
+<div class="flex justify-between py-2">
+
+<span>${p.name}</span>
+
+<b>
+₹${p.price.toLocaleString("en-IN")}
+</b>
+
+</div>
+
+`).join("");
+
+const total=cart.reduce((s,p)=>s+p.price,0);
+
+checkoutTotal.textContent=
+"₹"+total.toLocaleString("en-IN");
+
+checkoutModal.classList.remove("hidden");
+document.body.classList.add("lock");
+
+}
+
+
+function closeCheckout(){
+
+checkoutModal.classList.add("hidden");
+document.body.classList.remove("lock");
+
+}
+
+
+/* ================================
+   LOCATION
+================================ */
+
+function getLocation(){
+
+if(!navigator.geolocation){
+
+locationStatus.textContent=
+"GPS not supported. Enter address manually.";
+return;
+
+}
+
+locationStatus.textContent=
+"Requesting location permission...";
 
 navigator.geolocation.getCurrentPosition(
 
-position=>{
+pos=>{
 
-const lat=
-position.coords.latitude;
+const lat=pos.coords.latitude;
+const lng=pos.coords.longitude;
 
-const lng=
-position.coords.longitude;
-
-
-const mapLink=
+const link=
 `https://www.google.com/maps?q=${lat},${lng}`;
 
-
-document.getElementById("customerAddress")
-.value=
+address.value=
 `Google Maps Location:
-${mapLink}
+${link}
 
 Please add House/Flat, Street, City, State and PIN.`;
 
-
-status.textContent=
-"Location detected. Please complete your address.";
+locationStatus.textContent=
+"Location detected ✓ Complete your address.";
 
 },
 
 ()=>{
-
-status.textContent=
+locationStatus.textContent=
 "Location permission denied. Enter address manually.";
-
 },
 
 {
@@ -1687,141 +1098,97 @@ maximumAge:0
 }
 
 
-/* =====================================================
+/* ================================
    CREATE ORDER
-===================================================== */
+================================ */
 
-document.getElementById("checkoutForm")
-.addEventListener("submit",function(e){
+checkoutForm.addEventListener("submit",e=>{
 
 e.preventDefault();
 
+const customerName=name.value.trim();
+const customerPhone=phone.value.trim();
+const customerAddress=address.value.trim();
 
-const name=
-document.getElementById("customerName")
-.value.trim();
+if(!/^[0-9]{10}$/.test(customerPhone)){
 
-const phone=
-document.getElementById("customerPhone")
-.value.trim();
-
-const address=
-document.getElementById("customerAddress")
-.value.trim();
-
-
-if(!/^[0-9]{10}$/.test(phone)){
-
-alert("Please enter a valid 10-digit WhatsApp number.");
-
+alert("Enter a valid 10-digit WhatsApp number.");
 return;
 
 }
 
+if(customerAddress.length<10){
 
-if(address.length<10){
-
-alert("Please enter your complete delivery address.");
-
+alert("Please enter your complete address.");
 return;
 
 }
 
-
-const orderId=
-"K4U-"+Date.now().toString().slice(-8);
-
+const total=cart.reduce((s,p)=>s+p.price,0);
 
 currentOrder={
 
-id:orderId,
+id:"K4U-"+Date.now().toString().slice(-8),
 
-productId:selectedProduct.id,
+name:customerName,
 
-product:selectedProduct.name,
+phone:customerPhone,
 
-amount:selectedProduct.price,
+address:customerAddress,
 
-name:name,
+products:cart.map(p=>p.name),
 
-phone:phone,
+amount:total,
 
-address:address,
+paymentStatus:"PENDING",
 
-payment:"ONLINE PAYMENT",
+status:"PAYMENT_PENDING",
 
-status:"PAYMENT PENDING",
-
-delivery:"Within 14 Days",
-
-replacement:"Not Available",
-
-createdAt:new Date().toISOString()
+created:new Date().toISOString()
 
 };
 
 
-const orders=
-JSON.parse(
-localStorage.getItem("kicks4u_orders")||"[]"
-);
-
+let orders=
+JSON.parse(localStorage.getItem("k4u_orders")||"[]");
 
 orders.unshift(currentOrder);
 
-
 localStorage.setItem(
-"kicks4u_orders",
+"k4u_orders",
 JSON.stringify(orders)
 );
 
-
 closeCheckout();
-
 openPayment();
 
 });
 
 
-/* =====================================================
+/* ================================
    PAYMENT
-===================================================== */
+================================ */
 
 function openPayment(){
 
 const amount=currentOrder.amount;
 
-
-document.getElementById("paymentOrderId")
-.textContent=
+payOrder.textContent=
 "Order ID: "+currentOrder.id;
 
-
-document.getElementById("paymentAmount")
-.textContent=
+payAmount.textContent=
 "₹"+amount.toLocaleString("en-IN");
 
-
-/*
- QR PAYMENT STRING
-*/
-
 const upiUrl=
-`upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("KICKS4U")}&am=${amount}&cu=INR&tn=${encodeURIComponent(currentOrder.id)}`;
+`upi://pay?pa=${encodeURIComponent(UPI)}&pn=KICKS4U&am=${amount}&cu=INR&tn=${encodeURIComponent(currentOrder.id)}`;
 
-
-document.getElementById("upiQr").src=
-"https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=12&data="+
+qr.src=
+"https://api.qrserver.com/v1/create-qr-code/?size=500x500&data="+
 encodeURIComponent(upiUrl);
 
+upiButton.href=upiUrl;
 
-document.getElementById("upiPayButton").href=
-upiUrl;
-
-
-document.getElementById("paymentModal")
-.classList.remove("hidden");
-
+paymentModal.classList.remove("hidden");
 document.body.classList.add("lock");
 
 }
@@ -1829,37 +1196,25 @@ document.body.classList.add("lock");
 
 function closePayment(){
 
-document.getElementById("paymentModal")
-.classList.add("hidden");
-
+paymentModal.classList.add("hidden");
 document.body.classList.remove("lock");
 
 }
 
 
-function showPaymentHelp(){
+/* ================================
+   WHATSAPP
+================================ */
 
-document.getElementById("paymentHelp")
-.classList.toggle("hidden");
+function sendWhatsApp(){
 
-}
-
-
-/* =====================================================
-   WHATSAPP PAYMENT CONFIRMATION
-===================================================== */
-
-function sendPaymentConfirmation(){
-
-if(!currentOrder)return;
-
-
-const message=
-`KICKS4U PAYMENT / ORDER
+const msg=
+`KICKS4U ORDER
 
 Order ID: ${currentOrder.id}
 
-Product: ${currentOrder.product}
+Products:
+${currentOrder.products.join("\n")}
 
 Amount: ₹${currentOrder.amount}
 
@@ -1867,32 +1222,28 @@ Customer: ${currentOrder.name}
 
 WhatsApp: ${currentOrder.phone}
 
-Delivery Address:
+Address:
 ${currentOrder.address}
 
-Payment: Online UPI
+Payment: UPI
 
-Please verify my payment and confirm my order.`;
+Please verify my payment and confirm the order.`;
 
-
-const url=
-`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
-
-
-window.open(url,"_blank");
+window.open(
+`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,
+"_blank"
+);
 
 }
 
 
-/* =====================================================
+/* ================================
    MY ORDERS
-===================================================== */
+================================ */
 
 function openOrders(){
 
-document.getElementById("ordersModal")
-.classList.remove("hidden");
-
+ordersModal.classList.remove("hidden");
 document.body.classList.add("lock");
 
 }
@@ -1900,9 +1251,7 @@ document.body.classList.add("lock");
 
 function closeOrders(){
 
-document.getElementById("ordersModal")
-.classList.add("hidden");
-
+ordersModal.classList.add("hidden");
 document.body.classList.remove("lock");
 
 }
@@ -1910,138 +1259,61 @@ document.body.classList.remove("lock");
 
 function findOrders(){
 
-const phone=
-document.getElementById("orderPhone")
-.value.trim();
+const ph=orderSearch.value.trim();
 
-
-if(!/^[0-9]{10}$/.test(phone)){
+if(!/^[0-9]{10}$/.test(ph)){
 
 alert("Enter your 10-digit WhatsApp number.");
-
 return;
 
 }
 
+const all=
+JSON.parse(localStorage.getItem("k4u_orders")||"[]");
 
-const orders=
-JSON.parse(
-localStorage.getItem("kicks4u_orders")||"[]"
-);
-
-
-const result=
-orders.filter(order=>order.phone===phone);
-
+const result=all.filter(o=>o.phone===ph);
 
 if(!result.length){
 
-document.getElementById("ordersList")
-.innerHTML=`
-
-<div class="text-center py-12">
-
-<div class="text-5xl">
-📦
-</div>
-
-<p class="font-black mt-4">
-No orders found
-</p>
-
-</div>
-
-`;
-
+orders.innerHTML=`
+<div class="text-center py-10">
+<div class="text-5xl">📦</div>
+<p class="font-black mt-3">No orders found</p>
+</div>`;
 return;
 
 }
 
-
-document.getElementById("ordersList")
-.innerHTML=
-
-result.map(order=>`
+orders.innerHTML=result.map(o=>`
 
 <div class="border rounded-2xl p-5">
 
 <div class="flex justify-between gap-3">
-
 <div>
-
-<p class="font-black">
-${order.product}
-</p>
-
-<p class="text-xs text-slate-400 mt-1">
-${order.id}
-</p>
-
+<p class="font-black">${o.products.join(", ")}</p>
+<p class="text-xs text-slate-400">${o.id}</p>
 </div>
 
-<p class="font-black">
-₹${order.amount.toLocaleString("en-IN")}
-</p>
-
+<b>₹${o.amount.toLocaleString("en-IN")}</b>
 </div>
 
-
-<div class="mt-4 text-sm space-y-2">
-
-<p>
-💳 Payment:
-<b>${order.payment}</b>
-</p>
-
-<p>
-📦 Status:
-<b>${order.status}</b>
-</p>
-
-<p>
-🚚 Delivery:
-<b>${order.delivery}</b>
-</p>
-
-<p>
-✕ Replacement:
-<b>${order.replacement}</b>
-</p>
-
+<div class="mt-4 text-sm space-y-1">
+<p>💳 Payment: ${o.paymentStatus}</p>
+<p>📦 Status: ${o.status}</p>
+<p>🚚 Delivery: Within 14 Days</p>
+<p>✕ Replacement: Not Available</p>
 </div>
 
-
-<div class="grid grid-cols-4 gap-1 mt-5 text-[10px] text-center">
-
-<div>
-<div class="h-2 bg-indigo-600 rounded"></div>
-<p class="mt-1">Order</p>
+<div class="grid grid-cols-4 gap-1 mt-5 text-center text-[10px]">
+<div><div class="h-2 bg-indigo-600 rounded"></div>Order</div>
+<div><div class="h-2 bg-slate-200 rounded"></div>Paid</div>
+<div><div class="h-2 bg-slate-200 rounded"></div>Shipped</div>
+<div><div class="h-2 bg-slate-200 rounded"></div>Delivered</div>
 </div>
 
-<div>
-<div class="h-2 bg-slate-200 rounded"></div>
-<p class="mt-1">Paid</p>
-</div>
-
-<div>
-<div class="h-2 bg-slate-200 rounded"></div>
-<p class="mt-1">Shipped</p>
-</div>
-
-<div>
-<div class="h-2 bg-slate-200 rounded"></div>
-<p class="mt-1">Delivered</p>
-</div>
-
-</div>
-
-
-<button
-onclick='showInvoice(${JSON.stringify(order)})'
-class="w-full mt-5 border border-slate-200 py-3 rounded-xl font-bold">
-
-View / Print Invoice
-
+<button onclick='showInvoice(${JSON.stringify(o)})'
+class="w-full border py-3 rounded-xl font-bold mt-5">
+View Invoice
 </button>
 
 </div>
@@ -2051,279 +1323,163 @@ View / Print Invoice
 }
 
 
-/* =====================================================
+/* ================================
    INVOICE
-===================================================== */
+================================ */
 
-function showInvoice(order){
+function showInvoice(o){
 
-document.getElementById("invoiceId")
-.textContent=
-"Order ID: "+order.id;
+invId.textContent="Order ID: "+o.id;
+invDate.textContent=new Date(o.created).toLocaleString("en-IN");
+invName.textContent=o.name;
+invPhone.textContent="WhatsApp: "+o.phone;
+invAddress.textContent=o.address;
+invProduct.textContent=o.products.join(", ");
+invAmount.textContent="₹"+o.amount.toLocaleString("en-IN");
+invTotal.textContent="₹"+o.amount.toLocaleString("en-IN");
 
-
-document.getElementById("invoiceDate")
-.textContent=
-new Date(order.createdAt).toLocaleString("en-IN");
-
-
-document.getElementById("invoiceCustomer")
-.textContent=
-order.name;
-
-
-document.getElementById("invoicePhone")
-.textContent=
-"WhatsApp: "+order.phone;
-
-
-document.getElementById("invoiceAddress")
-.textContent=
-order.address;
-
-
-document.getElementById("invoiceProduct")
-.textContent=
-order.product;
-
-
-document.getElementById("invoiceAmount")
-.textContent=
-"₹"+order.amount.toLocaleString("en-IN");
-
-
-document.getElementById("invoiceTotal")
-.textContent=
-"₹"+order.amount.toLocaleString("en-IN");
-
-
-document.getElementById("invoiceModal")
-.classList.remove("hidden");
+invoiceModal.classList.remove("hidden");
 
 }
 
 
 function closeInvoice(){
-
-document.getElementById("invoiceModal")
-.classList.add("hidden");
-
+invoiceModal.classList.add("hidden");
 }
 
 
 function printInvoice(){
 
-const invoice=
-document.getElementById("invoice")
-.innerHTML;
+const content=invoice.innerHTML;
 
+const w=window.open("","_blank");
 
-const win=
-window.open("","_blank","width=900,height=800");
-
-
-win.document.write(`
-
+w.document.write(`
 <html>
-
 <head>
-
 <title>KICKS4U Invoice</title>
-
-<script src="https://cdn.tailwindcss.com"><\/script>
-
+<style>
+body{font-family:Arial;padding:40px}
+</style>
 </head>
-
-<body class="bg-white p-8">
-
-${invoice}
-
+<body>
+${content}
 <script>
-window.onload=function(){
-window.print();
-};
+window.onload=()=>window.print();
 <\/script>
-
 </body>
-
 </html>
-
 `);
 
-win.document.close();
+w.document.close();
 
 }
 
 
-/* =====================================================
+/* ================================
    SUPPORT CHAT
-===================================================== */
+================================ */
 
 function toggleChat(){
+chat.classList.toggle("hidden");
+}
 
-document.getElementById("chatWindow")
-.classList.toggle("hidden");
+
+function addMessage(text,user=false){
+
+const d=document.createElement("div");
+
+d.className=user
+?"bg-indigo-600 text-white p-3 rounded-xl ml-8 text-sm"
+:"bg-slate-100 p-3 rounded-xl mr-8 text-sm";
+
+d.textContent=text;
+
+messages.appendChild(d);
+
+messages.scrollTop=messages.scrollHeight;
 
 }
 
 
-function addChatMessage(text,user=false){
+function reply(text){
 
-const box=
-document.getElementById("chatMessages");
+const t=text.toLowerCase();
 
-
-const div=
-document.createElement("div");
-
-
-div.className=
-user
-?"bg-indigo-600 text-white rounded-xl p-3 text-sm ml-8"
-:"bg-slate-100 rounded-xl p-3 text-sm mr-8";
-
-
-div.textContent=text;
-
-
-box.appendChild(div);
-
-
-box.scrollTop=box.scrollHeight;
-
-}
-
-
-function supportReply(message){
-
-const t=message.toLowerCase();
-
-
-if(
-t.includes("delivery")||
-t.includes("deliver")||
-t.includes("kab")
-)
+if(t.includes("delivery")||t.includes("deliver"))
 return "Delivery is within 14 days after successful payment and order confirmation.";
 
+if(t.includes("cod")||t.includes("cash"))
+return "COD is disabled. KICKS4U accepts online payment only.";
 
-if(
-t.includes("cod")||
-t.includes("cash")
-)
-return "COD is currently disabled. KICKS4U accepts online payment only.";
+if(t.includes("payment")||t.includes("upi")||t.includes("pay"))
+return "You can pay using the UPI QR or Open UPI App button. UPI ID: 6260155319@upi.";
 
-
-if(
-t.includes("upi")||
-t.includes("payment")||
-t.includes("pay")
-)
-return "You can pay using the UPI QR or the Open UPI App button. UPI ID: 6260155319@upi.";
-
-
-if(
-t.includes("order")||
-t.includes("track")
-)
+if(t.includes("order")||t.includes("track"))
 return "Open My Orders and enter the same WhatsApp number used during checkout.";
 
+if(t.includes("invoice")||t.includes("bill"))
+return "Open My Orders, find your order and select View Invoice.";
 
-if(
-t.includes("invoice")||
-t.includes("bill")
-)
-return "Your invoice is available from My Orders. Open an order and tap View / Print Invoice.";
+if(t.includes("replace"))
+return "Replacement is currently unavailable.";
 
+if(t.includes("address")||t.includes("location"))
+return "During checkout, tap Google Location and then complete your full delivery address.";
 
-if(
-t.includes("replace")||
-t.includes("replacement")
-)
-return "KICKS4U currently does not offer replacement. Please verify product details before ordering.";
+if(t.includes("hi")||t.includes("hello")||t.includes("hey"))
+return "Hi 👋 Welcome to KICKS4U Support. How can I help with payment, delivery or your order?";
 
-
-if(
-t.includes("address")||
-t.includes("location")||
-t.includes("map")
-)
-return "During checkout, tap Use Google Location. A Google Maps location link will be added to your address.";
-
-
-if(
-t.includes("hello")||
-t.includes("hi")||
-t.includes("hey")
-)
-return "Hi 👋 Welcome to KICKS4U Support. I can help with payment, delivery, orders, invoices and store policies.";
-
-
-return "I can help with payment, delivery, My Orders, invoices, address/location and replacement policy. For other queries, use WhatsApp Support.";
+return "I can help with payment, delivery, orders, invoices, address/location and store policies. For other queries, use WhatsApp Support.";
 
 }
 
 
-function sendChat(e){
+function chatSend(e){
 
 e.preventDefault();
 
-
-const input=
-document.getElementById("chatInput");
-
-
-const text=
-input.value.trim();
-
+const text=chatInput.value.trim();
 
 if(!text)return;
 
+addMessage(text,true);
 
-addChatMessage(text,true);
-
-
-input.value="";
-
+chatInput.value="";
 
 setTimeout(()=>{
-
-addChatMessage(
-supportReply(text),
-false
-);
-
-},350);
+addMessage(reply(text));
+},300);
 
 }
 
 
-/* =====================================================
-   ESC KEY
-===================================================== */
+/* ================================
+   ESC
+================================ */
 
 document.addEventListener("keydown",e=>{
 
 if(e.key==="Escape"){
 
 closeProduct();
+closeZoom();
+closeCart();
 closeCheckout();
 closePayment();
 closeOrders();
 closeInvoice();
-closeZoom();
 
 }
 
 });
 
 
-/* =====================================================
+/* ================================
    START
-===================================================== */
+================================ */
 
-createCategories();
-renderProducts();
+render();
 
 </script>
 
