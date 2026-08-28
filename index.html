@@ -1,348 +1,2795 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KICKS4U | The Ultimate Footwear Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
-        .modal-active { overflow: hidden; }
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KICKS4U | Premium Footwear</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family: Inter, sans-serif;
+        background: #f5f7fb;
+        color: #172033;
+    }
+
+    ::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #111827;
+        border-radius: 20px;
+    }
+
+    .glass {
+        background: rgba(255,255,255,.86);
+        backdrop-filter: blur(16px);
+    }
+
+    .product-card {
+        transition: .25s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        transition: transform .45s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.06);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        scrollbar-width: none;
+    }
+
+    .modal-bg {
+        background: rgba(15,23,42,.72);
+        backdrop-filter: blur(8px);
+    }
+
+    .zoom-image {
+        cursor: zoom-in;
+    }
+
+    .zoom-image.zoomed {
+        transform: scale(1.65);
+        cursor: zoom-out;
+    }
+
+    .chat-message {
+        animation: messageIn .2s ease;
+    }
+
+    @keyframes messageIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .loader {
+        border: 3px solid #e5e7eb;
+        border-top-color: #111827;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
 </head>
-<body class="text-slate-800">
 
-    <!-- Navbar -->
-    <nav class="bg-slate-900 text-white p-4 shadow-2xl sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                KICKS4U
-            </h1>
-            <div class="flex-grow md:max-w-md mx-4">
-                <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Search shoes, sandals..." class="w-full px-4 py-2 rounded-full text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+<body>
+
+<!-- =========================================================
+     TOP ANNOUNCEMENT
+========================================================= -->
+
+<div class="bg-black text-white text-center text-xs sm:text-sm py-2 px-3">
+    🚚 Free delivery on eligible orders
+    <span class="mx-2 text-gray-500">|</span>
+    🔐 Secure checkout
+    <span class="mx-2 text-gray-500">|</span>
+    💬 24/7 KICKS4U Support
+</div>
+
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
+<header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+
+    <div class="max-w-7xl mx-auto px-4">
+
+        <div class="h-16 flex items-center gap-3">
+
+            <button
+                onclick="scrollToTop()"
+                class="text-xl sm:text-2xl font-black tracking-tight whitespace-nowrap">
+                KICKS<span class="text-indigo-600">4U</span>
+            </button>
+
+            <!-- SEARCH -->
+
+            <div class="flex-1 max-w-xl mx-auto relative">
+
+                <input
+                    id="searchInput"
+                    oninput="renderProducts()"
+                    type="text"
+                    placeholder="Search shoes, sneakers, sandals..."
+                    class="w-full bg-gray-100 border border-transparent focus:bg-white focus:border-indigo-300 rounded-full py-2.5 pl-11 pr-4 text-sm outline-none transition">
+
+                <span class="absolute left-4 top-2.5 text-gray-500">
+                    🔍
+                </span>
+
             </div>
-            <a href="mailto:uikeykhushank60@gmail.com" class="text-xs md:text-sm bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-full font-bold transition shadow-lg border border-blue-400">
-                Support
-            </a>
-        </div>
-    </nav>
 
-    <!-- Filters Section -->
-    <div class="bg-white shadow-sm sticky top-[72px] z-30 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex overflow-x-auto gap-3 hide-scrollbar">
-            <button onclick="setCategory('All')" class="filter-btn bg-slate-900 text-white px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition">All Footwear</button>
-            <button onclick="setCategory('Premium')" class="filter-btn bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition">Premium (₹1000+)</button>
-            <button onclick="setCategory('Casual')" class="filter-btn bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition">Casual Sneakers</button>
-            <button onclick="setCategory('Slippers')" class="filter-btn bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition">Sandals & Slippers</button>
+            <button
+                onclick="toggleWishlist()"
+                class="hidden sm:flex w-10 h-10 items-center justify-center rounded-full hover:bg-gray-100">
+                ♡
+            </button>
+
+            <button
+                onclick="openCart()"
+                class="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+
+                🛒
+
+                <span
+                    id="cartCount"
+                    class="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] min-w-5 h-5 rounded-full flex items-center justify-center">
+                    0
+                </span>
+
+            </button>
+
         </div>
+
     </div>
 
-    <!-- Storefront Grid -->
-    <main class="max-w-7xl mx-auto px-4 py-8 mb-20">
-        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Products injected by JS -->
-        </div>
-        <div id="noResult" class="hidden text-center py-20 text-gray-500 font-bold text-xl">
-            No products found matching your search.
-        </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-gray-400 py-8 text-center border-t border-slate-800">
-        <p>&copy; 2026 KICKS4U. All rights reserved.</p>
-        <p class="mt-2 text-sm">Need help? Email us at <a href="mailto:uikeykhushank60@gmail.com" class="text-blue-400 hover:text-blue-300">uikeykhushank60@gmail.com</a></p>
-    </footer>
+    <!-- CATEGORY BAR -->
 
-    <!-- ORDER & UPI PAYMENT MODAL -->
-    <div id="orderModal" class="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 overflow-y-auto backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full mx-4 my-8 transform scale-95 transition-transform duration-300 relative" id="modalContent">
-            
-            <button onclick="closeModal()" class="absolute top-4 right-4 bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 h-8 w-8 rounded-full font-bold text-xl flex items-center justify-center transition">&times;</button>
-            
-            <div class="text-center mb-4 mt-2">
-                <h3 class="text-2xl font-black text-gray-900">Secure Payment</h3>
-                <div class="bg-slate-50 p-2 rounded-xl mt-2 border border-slate-200 shadow-inner">
-                    <p class="text-slate-700 font-bold text-sm" id="modalProductName">Product Name</p>
-                    <p class="text-blue-600 font-black text-2xl mt-1" id="modalPrice">₹0</p>
-                </div>
+    <div class="border-t border-gray-100">
+
+        <div class="max-w-7xl mx-auto px-4">
+
+            <div class="flex gap-2 overflow-x-auto hide-scrollbar py-2">
+
+                <button onclick="setCategory('All')" class="category-btn active">
+                    All
+                </button>
+
+                <button onclick="setCategory('Sneakers')" class="category-btn">
+                    Sneakers
+                </button>
+
+                <button onclick="setCategory('Running')" class="category-btn">
+                    Running
+                </button>
+
+                <button onclick="setCategory('Formal')" class="category-btn">
+                    Formal
+                </button>
+
+                <button onclick="setCategory('Boots')" class="category-btn">
+                    Boots
+                </button>
+
+                <button onclick="setCategory('Sandals')" class="category-btn">
+                    Sandals
+                </button>
+
+                <button onclick="setCategory('Slippers')" class="category-btn">
+                    Slippers
+                </button>
+
             </div>
-            
-            <form id="checkoutForm" class="space-y-3 text-left">
-                
-                <!-- UPI PAYMENT SECTION -->
-                <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-center">
-                    <p class="text-xs font-bold text-indigo-800 uppercase tracking-wide mb-2">1. Scan & Pay</p>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" class="h-10 mx-auto mb-2 opacity-80" alt="UPI">
-                    <div class="bg-white p-2 rounded border border-indigo-100 inline-block mb-2">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=6260155319@upi&pn=KICKS4U&am=0" alt="UPI QR" class="h-32 w-32 mx-auto">
-                    </div>
-                    <p class="text-[10px] text-gray-500 font-semibold">Scan with GPay, PhonePe, or Paytm</p>
-                    
-                    <div class="mt-3">
-                        <label class="block text-xs font-bold text-indigo-700 text-left uppercase tracking-wide">2. Enter UTR / Transaction ID *</label>
-                        <input type="text" id="custUtr" required class="w-full mt-1 border border-indigo-300 p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-800" placeholder="e.g. 302198347129">
-                    </div>
-                </div>
 
-                <!-- ADDRESS SECTION -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">Full Name</label>
-                    <input type="text" id="custName" required class="w-full mt-1 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-800" placeholder="Rahul Kumar">
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">WhatsApp Number</label>
-                    <input type="tel" id="custPhone" required class="w-full mt-1 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-800" placeholder="10-digit number">
-                </div>
+        </div>
 
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide">Delivery Address</label>
-                        <button type="button" onclick="autoLocate()" id="locBtn" class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md hover:bg-indigo-200 font-bold flex items-center transition shadow-sm">
-                            📍 Auto-Detect
-                        </button>
-                    </div>
-                    <textarea id="custAddress" required rows="2" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-medium text-slate-800" placeholder="House no, Street, City..."></textarea>
-                    <p id="locStatus" class="text-xs text-gray-500 mt-1 hidden font-semibold">Fetching location...</p>
-                </div>
+    </div>
 
-                <div class="pt-2">
-                    <button type="button" onclick="placeOrderViaWhatsApp()" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-black py-3 px-4 rounded-xl transition shadow-xl flex items-center justify-center text-md tracking-wide border border-green-600">
-                        Verify Payment & Confirm Order
+</header>
+
+
+<style>
+.category-btn {
+    padding: 7px 17px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #374151;
+    transition: .2s;
+}
+
+.category-btn:hover {
+    background: #e5e7eb;
+}
+
+.category-btn.active {
+    background: #111827;
+    color: white;
+}
+</style>
+
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section class="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
+
+    <div class="max-w-7xl mx-auto px-4 py-14 md:py-20">
+
+        <div class="grid md:grid-cols-2 gap-10 items-center">
+
+            <div>
+
+                <span class="inline-flex bg-white/10 border border-white/10 px-4 py-2 rounded-full text-xs font-bold mb-5">
+                    NEW COLLECTION 2026
+                </span>
+
+                <h1 class="text-4xl md:text-6xl font-black leading-tight">
+                    Walk Better.
+                    <span class="text-indigo-400">Look Better.</span>
+                </h1>
+
+                <p class="text-gray-300 mt-5 max-w-xl leading-relaxed">
+                    Premium sneakers, running shoes, formal footwear and everyday comfort—
+                    carefully selected for style, comfort and durability.
+                </p>
+
+                <div class="flex flex-wrap gap-3 mt-7">
+
+                    <button
+                        onclick="setCategory('Sneakers'); document.getElementById('products').scrollIntoView()"
+                        class="bg-white text-black px-6 py-3 rounded-xl font-black hover:bg-gray-100">
+                        Shop Sneakers
                     </button>
+
+                    <button
+                        onclick="document.getElementById('products').scrollIntoView()"
+                        class="border border-white/30 px-6 py-3 rounded-xl font-bold hover:bg-white/10">
+                        Explore Collection
+                    </button>
+
                 </div>
-            </form>
+
+                <div class="flex gap-8 mt-8 text-sm">
+
+                    <div>
+                        <strong class="block text-xl">4.7★</strong>
+                        <span class="text-gray-400">Customer rating</span>
+                    </div>
+
+                    <div>
+                        <strong class="block text-xl">50+</strong>
+                        <span class="text-gray-400">Products</span>
+                    </div>
+
+                    <div>
+                        <strong class="block text-xl">7 Days</strong>
+                        <span class="text-gray-400">Easy return*</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="relative">
+
+                <div class="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full"></div>
+
+                <img
+                    src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1400&q=90"
+                    alt="Premium sneaker"
+                    class="relative rounded-3xl w-full aspect-[4/3] object-cover shadow-2xl">
+
+            </div>
+
         </div>
+
     </div>
 
-    <script>
-        // Generating 60 unique items securely via JS
-        const basePremium = [
-            { name: "Executive High-Top Kicks", img: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80", desc: "Advanced cushioning technology. Breathable upper with carbon-fiber plate for maximum style." },
-            { name: "Alpha Leather Oxfords", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80", desc: "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties." },
-            { name: "Titan Chelsea Boots", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80", desc: "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials." },
-            { name: "Majestic Formals", img: "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80", desc: "Handcrafted with a glossy finish. Features a pointed toe design and anti-slip sole." },
-            { name: "Elite Suede Loafers", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80", desc: "Slip into luxury with these ultra-soft suede loafers. Anti-slip rubber sole for perfect grip." },
-            { name: "Royal Derby Shoes", img: "https://images.unsplash.com/photo-1614252232525-a111f6262939?w=600&q=80", desc: "Classic derby silhouette with a modern touch. Memory foam insole for all-day office comfort." }
-        ];
+</section>
 
-        const baseCasual = [
-            { name: "Dynamic Athletics", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&q=80", desc: "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact." },
-            { name: "Urban Trail Shoes", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&q=80", desc: "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans and shorts." },
-            { name: "Classic Running Shoes", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80", desc: "Flexible sole perfect for daily use. Odor-resistant inner lining ensures your feet stay fresh." },
-            { name: "Neo Skater Kicks", img: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80", desc: "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college or evening walks." }
-        ];
 
-        const baseSlippers = [
-            { name: "Cloud Winter Slippers", img: "https://images.unsplash.com/photo-1596700877995-1f9e23927233?w=600&q=80", desc: "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house." },
-            { name: "Zen Foam Slides", img: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80", desc: "Tough straps that don't tear. Water-friendly design makes it perfect for beach vacations." },
-            { name: "Cozy Leather Sandals", img: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80", desc: "Doctor-recommended arch support and memory foam footbed. Reduces knee and heel pain." },
-            { name: "Daily Rubber Chappal", img: "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=600&q=80", desc: "High-density rubber ensures it doesn't thin out quickly. The most affordable, daily wear." },
-            { name: "Breeze Cross Sandals", img: "https://images.unsplash.com/photo-1571216664539-780c850fb97a?w=600&q=80", desc: "Ethnic fusion look. Perfect for traditional wear and highly durable for daily outings." }
-        ];
+<!-- =========================================================
+     TRUST BAR
+========================================================= -->
 
-        const products = [];
-        
-        // Generating 20 Premium
-        for(let i=0; i<20; i++) {
-            const base = basePremium[i % basePremium.length];
-            products.push({
-                name: `${base.name} V${i+1}`,
-                type: "Premium",
-                image: base.img,
-                price: Math.floor(Math.random() * (1999 - 1000 + 1) + 1000),
-                desc: base.desc
-            });
-        }
-        
-        // Generating 20 Casual
-        for(let i=0; i<20; i++) {
-            const base = baseCasual[i % baseCasual.length];
-            products.push({
-                name: `${base.name} Gen-${i+1}`,
-                type: "Casual",
-                image: base.img,
-                price: Math.floor(Math.random() * (999 - 500 + 1) + 500),
-                desc: base.desc
-            });
-        }
+<section class="bg-white border-b">
 
-        // Generating 20 Slippers
-        for(let i=0; i<20; i++) {
-            const base = baseSlippers[i % baseSlippers.length];
-            products.push({
-                name: `${base.name} Edition-${i+1}`,
-                type: "Slippers",
-                image: base.img,
-                price: Math.floor(Math.random() * (499 - 199 + 1) + 199),
-                desc: base.desc
-            });
-        }
+    <div class="max-w-7xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-5">
 
-        // Shuffle Array
-        products.sort(() => Math.random() - 0.5);
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🔒</span>
+            <div>
+                <strong class="text-sm block">Secure Checkout</strong>
+                <span class="text-xs text-gray-500">Protected payment</span>
+            </div>
+        </div>
 
-        const productGrid = document.getElementById('productGrid');
-        const noResult = document.getElementById('noResult');
-        let currentCategory = 'All';
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🚚</span>
+            <div>
+                <strong class="text-sm block">Fast Delivery</strong>
+                <span class="text-xs text-gray-500">Reliable shipping</span>
+            </div>
+        </div>
 
-        function renderProducts(searchTerm = '') {
-            productGrid.innerHTML = ''; 
-            let count = 0;
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">↩️</span>
+            <div>
+                <strong class="text-sm block">Easy Returns</strong>
+                <span class="text-xs text-gray-500">Check policy</span>
+            </div>
+        </div>
 
-            products.forEach((product, index) => {
-                const matchSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || product.desc.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchCat = currentCategory === 'All' || product.type === currentCategory;
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">💬</span>
+            <div>
+                <strong class="text-sm block">Smart Support</strong>
+                <span class="text-xs text-gray-500">Instant assistance</span>
+            </div>
+        </div>
 
-                if (matchSearch && matchCat) {
-                    count++;
-                    const cardHTML = `
-                        <div class="bg-white rounded-2xl shadow hover:shadow-xl transition-all duration-300 overflow-hidden group border border-slate-100 flex flex-col h-full transform hover:-translate-y-1">
-                            <div class="relative overflow-hidden h-48 bg-gray-100">
-                                <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out">
-                                <span class="absolute top-3 left-3 bg-white/90 text-slate-800 text-[10px] font-black px-3 py-1 rounded-full shadow uppercase tracking-wider">${product.type}</span>
-                            </div>
-                            <div class="p-5 flex-grow flex flex-col justify-between">
-                                <div>
-                                    <h3 class="font-bold text-lg text-slate-900 leading-tight mb-2">${product.name}</h3>
-                                    <p class="text-xs text-slate-500 mb-4 line-clamp-3 leading-relaxed">${product.desc}</p>
-                                </div>
-                                <div class="border-t border-slate-100 pt-4 mt-auto">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <p class="text-2xl font-black text-blue-600">₹${product.price}</p>
-                                    </div>
-                                    <button onclick="openModal(${index})" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors shadow-md text-sm uppercase tracking-wide">
-                                        Buy Now
-                                    </button>
-                                </div>
-                            </div>
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     PRODUCTS
+========================================================= -->
+
+<main id="products" class="max-w-7xl mx-auto px-4 py-10">
+
+    <div class="flex flex-col sm:flex-row justify-between gap-4 mb-7">
+
+        <div>
+            <h2 class="text-2xl md:text-3xl font-black">
+                Featured Footwear
+            </h2>
+
+            <p class="text-gray-500 text-sm mt-1">
+                Premium picks for everyday style.
+            </p>
+        </div>
+
+        <select
+            id="sortSelect"
+            onchange="renderProducts()"
+            class="border border-gray-200 bg-white rounded-xl px-4 py-2 text-sm outline-none">
+            <option value="featured">Sort: Featured</option>
+            <option value="low">Price: Low to High</option>
+            <option value="high">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+        </select>
+
+    </div>
+
+
+    <div
+        id="productGrid"
+        class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+    </div>
+
+
+    <div
+        id="noResult"
+        class="hidden py-20 text-center">
+        <div class="text-5xl mb-4">🔎</div>
+        <h3 class="font-black text-xl">No products found</h3>
+        <p class="text-gray-500 text-sm mt-2">
+            Try another search or category.
+        </p>
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     PRODUCT DETAIL MODAL
+========================================================= -->
+
+<div
+    id="productModal"
+    class="fixed inset-0 z-50 hidden modal-bg overflow-y-auto">
+
+    <div class="min-h-screen flex items-center justify-center p-3 md:p-6">
+
+        <div
+            class="bg-white w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden">
+
+            <div class="flex justify-end p-3">
+
+                <button
+                    onclick="closeProductModal()"
+                    class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-xl">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-7 p-5 md:p-8">
+
+                <!-- GALLERY -->
+
+                <div>
+
+                    <div class="rounded-2xl overflow-hidden bg-gray-100">
+
+                        <img
+                            id="mainProductImage"
+                            src=""
+                            class="w-full aspect-square object-cover zoom-image"
+                            onclick="toggleZoom()">
+
+                    </div>
+
+                    <div
+                        id="thumbnailContainer"
+                        class="flex gap-3 overflow-x-auto hide-scrollbar mt-3">
+                    </div>
+
+                    <p class="text-xs text-gray-400 text-center mt-2">
+                        Tap main image to zoom
+                    </p>
+
+                </div>
+
+
+                <!-- INFORMATION -->
+
+                <div>
+
+                    <div class="flex justify-between items-start gap-3">
+
+                        <div>
+
+                            <span
+                                id="detailCategory"
+                                class="text-xs font-bold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">
+                            </span>
+
+                            <h2
+                                id="detailName"
+                                class="text-2xl md:text-4xl font-black mt-3">
+                            </h2>
+
                         </div>
-                    `;
-                    productGrid.insertAdjacentHTML('beforeend', cardHTML);
-                }
-            });
 
-            if(count === 0) {
-                noResult.classList.remove('hidden');
-            } else {
-                noResult.classList.add('hidden');
-            }
-        }
+                        <button
+                            onclick="addCurrentToWishlist()"
+                            class="text-2xl">
+                            ♡
+                        </button>
 
-        function filterProducts() {
-            const term = document.getElementById('searchInput').value;
-            renderProducts(term);
-        }
+                    </div>
 
-        function setCategory(cat) {
-            currentCategory = cat;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if(btn.innerText.includes(cat) || (cat==='All' && btn.innerText==='All Footwear')) {
-                    btn.classList.remove('bg-gray-100', 'text-slate-700');
-                    btn.classList.add('bg-slate-900', 'text-white');
-                } else {
-                    btn.classList.add('bg-gray-100', 'text-slate-700');
-                    btn.classList.remove('bg-slate-900', 'text-white');
-                }
-            });
-            filterProducts();
-        }
 
-        let selectedProduct = "";
-        let selectedPrice = 0;
+                    <div class="flex items-center gap-3 mt-4">
 
-        function openModal(index) {
-            const product = products[index];
-            selectedProduct = product.name;
-            selectedPrice = product.price;
-            
-            document.getElementById('modalProductName').innerText = product.name;
-            document.getElementById('modalPrice').innerText = `₹${product.price}`;
-            
-            const modal = document.getElementById('orderModal');
-            modal.classList.remove('hidden');
-            document.body.classList.add('modal-active');
-            
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                document.getElementById('modalContent').classList.remove('scale-95');
-                document.getElementById('modalContent').classList.add('scale-100');
-            }, 10);
-        }
+                        <span
+                            id="detailRating"
+                            class="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
+                        </span>
 
-        function closeModal() {
-            const modal = document.getElementById('orderModal');
-            modal.classList.add('opacity-0');
-            document.getElementById('modalContent').classList.remove('scale-100');
-            document.getElementById('modalContent').classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.classList.remove('modal-active');
-                document.getElementById('checkoutForm').reset();
-                document.getElementById('locStatus').classList.add('hidden');
-            }, 300);
-        }
+                        <span
+                            id="detailReviews"
+                            class="text-sm text-gray-500">
+                        </span>
 
-        function autoLocate() {
-            const statusText = document.getElementById('locStatus');
-            const addressBox = document.getElementById('custAddress');
-            
-            statusText.classList.remove('hidden');
-            statusText.innerText = "Requesting GPS...";
-            statusText.className = "text-xs text-blue-600 mt-1 block font-bold animate-pulse";
+                    </div>
 
-            if (!navigator.geolocation) {
-                statusText.innerText = "GPS not supported.";
-                statusText.className = "text-xs text-red-500 mt-1 block font-bold";
-                return;
-            }
 
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const mapLink = `https://maps.google.com/?q=${lat},${lng}`;
-                    
-                    statusText.innerText = "Location mapped 📍";
-                    statusText.className = "text-xs text-green-600 mt-1 block font-bold";
-                    
-                    addressBox.value = `📍 GPS Location:\n${mapLink}\n\n[House No.]: `;
-                    addressBox.focus();
-                },
-                (error) => {
-                    statusText.innerText = "Type manually.";
-                    statusText.className = "text-xs text-red-500 mt-1 block font-bold";
-                }
+                    <div class="border-b my-5"></div>
+
+
+                    <div class="flex items-end gap-3">
+
+                        <span
+                            id="detailPrice"
+                            class="text-3xl font-black">
+                        </span>
+
+                        <span
+                            id="detailMrp"
+                            class="text-gray-400 line-through">
+                        </span>
+
+                        <span
+                            id="detailDiscount"
+                            class="text-green-600 font-bold text-sm">
+                        </span>
+
+                    </div>
+
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        Inclusive of applicable taxes
+                    </p>
+
+
+                    <!-- DETAILS -->
+
+                    <div class="mt-6">
+
+                        <h3 class="font-black text-lg mb-3">
+                            Product Information
+                        </h3>
+
+                        <div
+                            id="detailDescription"
+                            class="text-sm text-gray-600 leading-relaxed">
+                        </div>
+
+                    </div>
+
+
+                    <!-- SPECIFICATIONS -->
+
+                    <div class="grid grid-cols-2 gap-3 mt-5">
+
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <span class="text-xs text-gray-400 block">Material</span>
+                            <strong id="detailMaterial" class="text-sm"></strong>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <span class="text-xs text-gray-400 block">Sole</span>
+                            <strong id="detailSole" class="text-sm"></strong>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <span class="text-xs text-gray-400 block">Fit</span>
+                            <strong id="detailFit" class="text-sm"></strong>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-3">
+                            <span class="text-xs text-gray-400 block">Usage</span>
+                            <strong id="detailUsage" class="text-sm"></strong>
+                        </div>
+
+                    </div>
+
+
+                    <!-- SIZE -->
+
+                    <div class="mt-6">
+
+                        <div class="flex justify-between">
+
+                            <h3 class="font-black text-sm">
+                                Select Size
+                            </h3>
+
+                            <button
+                                onclick="showSizeGuide()"
+                                class="text-indigo-600 text-xs font-bold">
+                                Size Guide
+                            </button>
+
+                        </div>
+
+                        <div
+                            id="sizeContainer"
+                            class="flex flex-wrap gap-2 mt-3">
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUANTITY -->
+
+                    <div class="mt-5">
+
+                        <span class="font-black text-sm">
+                            Quantity
+                        </span>
+
+                        <div class="flex items-center border w-fit rounded-xl mt-2">
+
+                            <button
+                                onclick="changeQuantity(-1)"
+                                class="w-10 h-10 font-bold">
+                                −
+                            </button>
+
+                            <span
+                                id="quantityValue"
+                                class="w-10 text-center font-bold">
+                                1
+                            </span>
+
+                            <button
+                                onclick="changeQuantity(1)"
+                                class="w-10 h-10 font-bold">
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DELIVERY -->
+
+                    <div class="bg-green-50 border border-green-100 rounded-xl p-4 mt-5">
+
+                        <div class="font-bold text-sm">
+                            🚚 Delivery available
+                        </div>
+
+                        <p class="text-xs text-gray-600 mt-1">
+                            Enter your address during checkout to see the final delivery estimate.
+                        </p>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="grid grid-cols-2 gap-3 mt-5">
+
+                        <button
+                            onclick="addToCartFromDetail()"
+                            class="border-2 border-gray-900 rounded-xl py-3 font-black hover:bg-gray-100">
+                            Add to Cart
+                        </button>
+
+                        <button
+                            onclick="buyCurrentProduct()"
+                            class="bg-indigo-600 text-white rounded-xl py-3 font-black hover:bg-indigo-700">
+                            Buy Now
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     CART DRAWER
+========================================================= -->
+
+<div
+    id="cartOverlay"
+    class="fixed inset-0 bg-black/50 z-50 hidden"
+    onclick="closeCart()">
+</div>
+
+<aside
+    id="cartDrawer"
+    class="fixed right-0 top-0 bottom-0 z-[60] w-full sm:max-w-md bg-white translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
+
+    <div class="p-5 border-b flex justify-between items-center">
+
+        <div>
+            <h2 class="font-black text-xl">Your Cart</h2>
+            <p id="cartSubtitle" class="text-xs text-gray-500"></p>
+        </div>
+
+        <button
+            onclick="closeCart()"
+            class="w-9 h-9 rounded-full bg-gray-100">
+            ×
+        </button>
+
+    </div>
+
+
+    <div
+        id="cartItems"
+        class="flex-1 overflow-y-auto p-5">
+    </div>
+
+
+    <div class="border-t p-5">
+
+        <div class="flex justify-between text-sm">
+            <span>Subtotal</span>
+            <strong id="cartSubtotal">₹0</strong>
+        </div>
+
+        <div class="flex justify-between text-sm mt-2">
+            <span>Delivery</span>
+            <strong id="cartDelivery">₹0</strong>
+        </div>
+
+        <div class="border-t my-3"></div>
+
+        <div class="flex justify-between text-lg">
+            <strong>Total</strong>
+            <strong id="cartTotal">₹0</strong>
+        </div>
+
+        <button
+            onclick="openCheckout()"
+            class="w-full mt-4 bg-indigo-600 text-white py-3 rounded-xl font-black hover:bg-indigo-700">
+            Proceed to Checkout
+        </button>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     CHECKOUT MODAL
+========================================================= -->
+
+<div
+    id="checkoutModal"
+    class="fixed inset-0 z-[70] hidden modal-bg overflow-y-auto">
+
+    <div class="min-h-screen flex items-center justify-center p-3 md:p-6">
+
+        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl">
+
+            <div class="p-5 border-b flex justify-between items-center">
+
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black">
+                        Secure Checkout
+                    </h2>
+
+                    <p class="text-xs text-gray-500">
+                        Your payment information should be processed by your payment gateway.
+                    </p>
+                </div>
+
+                <button
+                    onclick="closeCheckout()"
+                    class="w-9 h-9 rounded-full bg-gray-100">
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="grid lg:grid-cols-2">
+
+                <!-- CUSTOMER -->
+
+                <div class="p-5 md:p-7">
+
+                    <h3 class="font-black mb-4">
+                        Delivery Details
+                    </h3>
+
+                    <div class="space-y-3">
+
+                        <input
+                            id="checkoutName"
+                            placeholder="Full Name"
+                            class="checkout-input">
+
+                        <input
+                            id="checkoutPhone"
+                            type="tel"
+                            placeholder="Mobile Number"
+                            class="checkout-input">
+
+                        <textarea
+                            id="checkoutAddress"
+                            rows="3"
+                            placeholder="Complete Delivery Address"
+                            class="checkout-input"></textarea>
+
+                        <div class="grid grid-cols-2 gap-3">
+
+                            <input
+                                id="checkoutCity"
+                                placeholder="City"
+                                class="checkout-input">
+
+                            <input
+                                id="checkoutPincode"
+                                placeholder="PIN Code"
+                                class="checkout-input">
+
+                        </div>
+
+                    </div>
+
+
+                    <h3 class="font-black mt-7 mb-4">
+                        Payment Method
+                    </h3>
+
+
+                    <div class="space-y-2">
+
+                        <label class="payment-option">
+
+                            <input
+                                type="radio"
+                                name="payment"
+                                value="online"
+                                checked
+                                onchange="updatePaymentUI()">
+
+                            <div>
+                                <strong class="text-sm">
+                                    Online Payment
+                                </strong>
+
+                                <p class="text-xs text-gray-500">
+                                    UPI, Cards, Net Banking & supported wallets
+                                </p>
+                            </div>
+
+                            <span class="ml-auto">
+                                🔐
+                            </span>
+
+                        </label>
+
+
+                        <label class="payment-option">
+
+                            <input
+                                type="radio"
+                                name="payment"
+                                value="cod"
+                                onchange="updatePaymentUI()">
+
+                            <div>
+                                <strong class="text-sm">
+                                    Cash on Delivery
+                                </strong>
+
+                                <p class="text-xs text-gray-500">
+                                    Pay when your order arrives
+                                </p>
+                            </div>
+
+                            <span class="ml-auto">
+                                💵
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div
+                        id="onlinePaymentBox"
+                        class="mt-4 bg-indigo-50 border border-indigo-100 rounded-2xl p-4">
+
+                        <p class="font-black text-sm">
+                            Online payment
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+
+                            <button class="gateway-method active">
+                                UPI
+                            </button>
+
+                            <button class="gateway-method">
+                                Card
+                            </button>
+
+                            <button class="gateway-method">
+                                Net Banking
+                            </button>
+
+                            <button class="gateway-method">
+                                Wallet
+                            </button>
+
+                        </div>
+
+                        <p class="text-[11px] text-gray-500 mt-3">
+                            This interface is ready to connect with your chosen payment gateway.
+                            Do not put gateway secret keys in this HTML file.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        onclick="placeOrder()"
+                        class="w-full mt-5 bg-black text-white py-3.5 rounded-xl font-black hover:bg-gray-800">
+                        Continue Securely
+                    </button>
+
+                </div>
+
+
+                <!-- SUMMARY -->
+
+                <div class="bg-gray-50 p-5 md:p-7">
+
+                    <h3 class="font-black mb-4">
+                        Order Summary
+                    </h3>
+
+                    <div id="checkoutItems"></div>
+
+                    <div class="border-t mt-5 pt-4 space-y-2 text-sm">
+
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <strong id="checkoutSubtotal">₹0</strong>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Delivery</span>
+                            <strong id="checkoutDelivery">₹0</strong>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Discount</span>
+                            <strong class="text-green-600">
+                                ₹0
+                            </strong>
+                        </div>
+
+                        <div class="border-t pt-3 flex justify-between text-xl">
+                            <strong>Total</strong>
+                            <strong id="checkoutTotal">₹0</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="bg-white rounded-xl p-4 mt-5">
+
+                        <div class="font-bold text-sm">
+                            🛡️ Safe Shopping
+                        </div>
+
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                            Never share your OTP, UPI PIN, card PIN or password with anyone,
+                            including support staff.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.checkout-input {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px 13px;
+    outline: none;
+    font-size: 14px;
+}
+
+.checkout-input:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.1);
+}
+
+.payment-option {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    cursor: pointer;
+    background: white;
+}
+
+.payment-option:hover {
+    border-color: #a5b4fc;
+}
+
+.gateway-method {
+    padding: 10px;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.gateway-method.active {
+    border-color: #6366f1;
+    color: #4f46e5;
+    background: #eef2ff;
+}
+
+</style>
+
+
+<!-- =========================================================
+     CHATBOT
+========================================================= -->
+
+<button
+    onclick="toggleChat()"
+    id="chatButton"
+    class="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-indigo-600 text-white shadow-2xl text-2xl hover:scale-105 transition">
+    💬
+</button>
+
+
+<div
+    id="chatBox"
+    class="fixed bottom-24 right-4 z-50 w-[calc(100%-32px)] sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden hidden">
+
+    <div class="bg-slate-950 text-white p-4 flex justify-between items-center">
+
+        <div>
+
+            <div class="font-black">
+                KICKS4U Assistant
+            </div>
+
+            <div class="text-[11px] text-green-400 mt-1">
+                ● Online
+            </div>
+
+        </div>
+
+        <button onclick="toggleChat()" class="text-xl">
+            ×
+        </button>
+
+    </div>
+
+
+    <div
+        id="chatMessages"
+        class="h-80 overflow-y-auto p-4 space-y-3 bg-gray-50">
+
+        <div class="chat-message bg-white border rounded-xl p-3 text-sm">
+            👋 Hey! I'm the KICKS4U assistant.
+            I can help with products, sizes, delivery, payment and orders.
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+
+            <button onclick="quickChat('Which shoes are best for running?')" class="chat-chip">
+                Running shoes
+            </button>
+
+            <button onclick="quickChat('What payment options are available?')" class="chat-chip">
+                Payment
+            </button>
+
+            <button onclick="quickChat('How long does delivery take?')" class="chat-chip">
+                Delivery
+            </button>
+
+            <button onclick="quickChat('How do I choose my size?')" class="chat-chip">
+                Size help
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <form
+        onsubmit="sendChat(event)"
+        class="p-3 border-t flex gap-2">
+
+        <input
+            id="chatInput"
+            placeholder="Ask something..."
+            class="flex-1 bg-gray-100 rounded-xl px-3 py-2 text-sm outline-none">
+
+        <button
+            class="bg-indigo-600 text-white px-4 rounded-xl font-bold">
+            ➤
+        </button>
+
+    </form>
+
+</div>
+
+
+<style>
+
+.chat-chip {
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #e5e7eb;
+    background: white;
+    padding: 7px 9px;
+    border-radius: 999px;
+}
+
+</style>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="bg-slate-950 text-gray-400 mt-16">
+
+    <div class="max-w-7xl mx-auto px-4 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        <div>
+
+            <h2 class="text-white font-black text-2xl">
+                KICKS<span class="text-indigo-400">4U</span>
+            </h2>
+
+            <p class="text-sm mt-3 leading-relaxed">
+                Premium footwear for everyday movement and modern style.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 class="text-white font-bold mb-3">
+                Shop
+            </h3>
+
+            <div class="space-y-2 text-sm">
+
+                <button onclick="setCategory('Sneakers')" class="block hover:text-white">
+                    Sneakers
+                </button>
+
+                <button onclick="setCategory('Running')" class="block hover:text-white">
+                    Running
+                </button>
+
+                <button onclick="setCategory('Formal')" class="block hover:text-white">
+                    Formal
+                </button>
+
+                <button onclick="setCategory('Sandals')" class="block hover:text-white">
+                    Sandals
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <h3 class="text-white font-bold mb-3">
+                Help
+            </h3>
+
+            <div class="space-y-2 text-sm">
+
+                <button onclick="toggleChat()" class="block hover:text-white">
+                    Support Chat
+                </button>
+
+                <button onclick="showSizeGuide()" class="block hover:text-white">
+                    Size Guide
+                </button>
+
+                <a
+                    href="mailto:uikeykhushank60@gmail.com"
+                    class="block hover:text-white">
+                    Email Support
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <h3 class="text-white font-bold mb-3">
+                Payment
+            </h3>
+
+            <p class="text-sm leading-relaxed">
+                Online payment and Cash on Delivery options can be enabled
+                through your payment gateway configuration.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="border-t border-white/10 text-center text-xs py-5">
+        © 2026 KICKS4U. All rights reserved.
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+/* =========================================================
+   PRODUCT DATABASE
+========================================================= */
+
+const products = [
+
+{
+    id: 1,
+    name: "KICKS4U AirFlex Runner",
+    category: "Running",
+    price: 1499,
+    mrp: 2999,
+    rating: 4.7,
+    reviews: 284,
+    material: "Engineered Mesh",
+    sole: "EVA + Rubber",
+    fit: "Regular Fit",
+    usage: "Running / Daily",
+    description:
+        "Lightweight running footwear designed for daily movement. The breathable mesh upper improves airflow while the cushioned midsole provides comfortable support during regular walking and running.",
+    images: [
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90",
+        "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=1200&q=90",
+        "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=1200&q=90",
+        "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10,11]
+},
+
+{
+    id: 2,
+    name: "Urban Street X1",
+    category: "Sneakers",
+    price: 1899,
+    mrp: 3499,
+    rating: 4.6,
+    reviews: 193,
+    material: "Synthetic Leather + Mesh",
+    sole: "Rubber",
+    fit: "Regular Fit",
+    usage: "Casual / Streetwear",
+    description:
+        "A versatile everyday sneaker with a modern streetwear silhouette, cushioned footbed and durable outsole.",
+    images: [
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
+        "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1200&q=90",
+        "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10]
+},
+
+{
+    id: 3,
+    name: "Executive Leather Derby",
+    category: "Formal",
+    price: 2199,
+    mrp: 3999,
+    rating: 4.8,
+    reviews: 147,
+    material: "Leather Finish Upper",
+    sole: "TPR",
+    fit: "Regular Fit",
+    usage: "Office / Formal",
+    description:
+        "Clean derby styling with a polished upper, comfortable insole and durable outsole for office and formal occasions.",
+    images: [
+        "https://images.unsplash.com/photo-1614252232525-a111f6262939?w=1200&q=90",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
+        "https://images.unsplash.com/photo-1582897085656-c636d006a246?w=1200&q=90",
+        "https://images.unsplash.com/photo-1449247709967-d4461a6a6103?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10,11]
+},
+
+{
+    id: 4,
+    name: "TrailForce Outdoor",
+    category: "Running",
+    price: 2499,
+    mrp: 4499,
+    rating: 4.5,
+    reviews: 119,
+    material: "Technical Mesh",
+    sole: "High-Grip Rubber",
+    fit: "Comfort Fit",
+    usage: "Outdoor / Trail",
+    description:
+        "Built for active outdoor use with a grippy outsole, protective upper and cushioned construction.",
+    images: [
+        "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1200&q=90",
+        "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
+        "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=1200&q=90",
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90"
+    ],
+    sizes: [7,8,9,10,11]
+},
+
+{
+    id: 5,
+    name: "Classic Comfort Loafer",
+    category: "Formal",
+    price: 1699,
+    mrp: 2999,
+    rating: 4.4,
+    reviews: 96,
+    material: "Synthetic Leather",
+    sole: "EVA",
+    fit: "Comfort Fit",
+    usage: "Office / Casual",
+    description:
+        "A slip-on loafer focused on easy everyday wear, soft cushioning and a clean formal-casual appearance.",
+    images: [
+        "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=1200&q=90",
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=90",
+        "https://images.unsplash.com/photo-1582897085656-c636d006a246?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10]
+},
+
+{
+    id: 6,
+    name: "Titan Chelsea Boot",
+    category: "Boots",
+    price: 2899,
+    mrp: 4999,
+    rating: 4.7,
+    reviews: 88,
+    material: "Synthetic Leather",
+    sole: "TPR",
+    fit: "Regular Fit",
+    usage: "Casual / Winter",
+    description:
+        "A modern Chelsea-inspired boot with elastic side panels and a durable outsole for everyday urban use.",
+    images: [
+        "https://images.unsplash.com/photo-1542840410-3092f99611a3?w=1200&q=90",
+        "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1200&q=90",
+        "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=1200&q=90"
+    ],
+    sizes: [7,8,9,10,11]
+},
+
+{
+    id: 7,
+    name: "CloudStep Slides",
+    category: "Slippers",
+    price: 599,
+    mrp: 999,
+    rating: 4.5,
+    reviews: 310,
+    material: "EVA Foam",
+    sole: "EVA",
+    fit: "Comfort Fit",
+    usage: "Home / Casual",
+    description:
+        "Soft lightweight slides designed for everyday comfort at home, travel and casual use.",
+    images: [
+        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90",
+        "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90",
+        "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10]
+},
+
+{
+    id: 8,
+    name: "Urban Cross Sandal",
+    category: "Sandals",
+    price: 799,
+    mrp: 1399,
+    rating: 4.3,
+    reviews: 72,
+    material: "Synthetic Upper",
+    sole: "Rubber",
+    fit: "Regular Fit",
+    usage: "Daily / Travel",
+    description:
+        "Everyday cross-strap sandals with a practical outsole and comfortable footbed.",
+    images: [
+        "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1200&q=90",
+        "https://images.unsplash.com/photo-1571216664539-780c850fb97a?w=1200&q=90",
+        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10]
+},
+
+{
+    id: 9,
+    name: "Velocity Pro Sneaker",
+    category: "Sneakers",
+    price: 2399,
+    mrp: 4299,
+    rating: 4.8,
+    reviews: 421,
+    material: "Engineered Knit",
+    sole: "EVA + Rubber",
+    fit: "Comfort Fit",
+    usage: "Training / Casual",
+    description:
+        "Sport-inspired sneaker with a lightweight upper, responsive cushioning and durable outsole.",
+    images: [
+        "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=1200&q=90",
+        "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=1200&q=90",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10,11]
+},
+
+{
+    id: 10,
+    name: "DailyFlex Comfort Shoe",
+    category: "Sneakers",
+    price: 1299,
+    mrp: 2299,
+    rating: 4.4,
+    reviews: 188,
+    material: "Breathable Mesh",
+    sole: "EVA",
+    fit: "Regular Fit",
+    usage: "Daily Walking",
+    description:
+        "Simple lightweight daily shoe designed for walking, commuting and everyday comfort.",
+    images: [
+        "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=1200&q=90",
+        "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90"
+    ],
+    sizes: [6,7,8,9,10]
+}
+
+];
+
+
+/* =========================================================
+   ADD MORE PRODUCTS
+========================================================= */
+
+const extraNames = [
+    "Street Core",
+    "Motion X",
+    "Flex Runner",
+    "City Walk",
+    "Active Pro",
+    "Comfort Max",
+    "Urban Edge",
+    "Classic Line"
+];
+
+let nextId = 11;
+
+for (let i = 0; i < 42; i++) {
+
+    const categories = [
+        "Sneakers",
+        "Running",
+        "Formal",
+        "Boots",
+        "Sandals",
+        "Slippers"
+    ];
+
+    const category = categories[i % categories.length];
+
+    const baseImages = [
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=90",
+        "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1200&q=90",
+        "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1200&q=90",
+        "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=1200&q=90"
+    ];
+
+    const price =
+        category === "Slippers" ? 399 + (i % 5) * 100 :
+        category === "Sandals" ? 699 + (i % 5) * 150 :
+        category === "Formal" ? 1599 + (i % 5) * 200 :
+        category === "Boots" ? 2299 + (i % 5) * 250 :
+        1199 + (i % 7) * 200;
+
+    products.push({
+
+        id: nextId++,
+
+        name: `${extraNames[i % extraNames.length]} ${i + 1}`,
+
+        category,
+
+        price,
+
+        mrp: Math.round(price * 1.8),
+
+        rating: Number((4.2 + (i % 7) * .1).toFixed(1)),
+
+        reviews: 40 + i * 13,
+
+        material:
+            category === "Formal"
+                ? "Premium Finish Synthetic"
+                : category === "Slippers"
+                    ? "EVA Foam"
+                    : "Breathable Mesh",
+
+        sole:
+            category === "Boots"
+                ? "TPR"
+                : "EVA + Rubber",
+
+        fit: "Regular Fit",
+
+        usage:
+            category === "Formal"
+                ? "Office / Formal"
+                : category === "Boots"
+                    ? "Casual / Outdoor"
+                    : category,
+
+        description:
+            "Comfort-focused footwear designed for regular everyday use. Built with practical materials, supportive cushioning and a durable outsole.",
+
+        images: baseImages,
+
+        sizes: [6,7,8,9,10,11]
+
+    });
+}
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentCategory = "All";
+let selectedProduct = null;
+let selectedSize = null;
+let quantity = 1;
+
+let cart = JSON.parse(localStorage.getItem("kicks4u_cart") || "[]");
+
+let wishlist =
+    JSON.parse(localStorage.getItem("kicks4u_wishlist") || "[]");
+
+
+/* =========================================================
+   RENDER PRODUCTS
+========================================================= */
+
+function renderProducts() {
+
+    const grid = document.getElementById("productGrid");
+
+    const search =
+        document.getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
+
+    const sort =
+        document.getElementById("sortSelect")
+            .value;
+
+    let filtered = products.filter(product => {
+
+        const categoryMatch =
+            currentCategory === "All" ||
+            product.category === currentCategory;
+
+        const searchMatch =
+            product.name.toLowerCase().includes(search) ||
+            product.category.toLowerCase().includes(search) ||
+            product.material.toLowerCase().includes(search);
+
+        return categoryMatch && searchMatch;
+    });
+
+
+    if (sort === "low") {
+        filtered.sort((a,b) => a.price - b.price);
+    }
+
+    if (sort === "high") {
+        filtered.sort((a,b) => b.price - a.price);
+    }
+
+    if (sort === "rating") {
+        filtered.sort((a,b) => b.rating - a.rating);
+    }
+
+
+    grid.innerHTML = "";
+
+    document.getElementById("noResult")
+        .classList.toggle("hidden", filtered.length > 0);
+
+
+    filtered.forEach(product => {
+
+        const discount =
+            Math.round(
+                ((product.mrp - product.price) /
+                product.mrp) * 100
             );
-        }
 
-        function placeOrderViaWhatsApp() {
-            const utr = document.getElementById('custUtr').value.trim();
-            const name = document.getElementById('custName').value.trim();
-            const address = document.getElementById('custAddress').value.trim();
-            const phone = document.getElementById('custPhone').value.trim();
 
-            if(!utr || !name || !address || !phone) {
-                alert("Please complete the payment and fill all details (including UTR)!");
-                return;
-            }
+        const card = document.createElement("article");
 
-            // YOUR WHATSAPP NUMBER
-            const myWhatsAppNumber = "916260155319"; 
-            
-            const message = `*✅ NEW PAID ORDER ALERT ✅*\n\n*🛍️ Item:* ${selectedProduct}\n*💰 Amount Paid:* ₹${selectedPrice}\n*💳 UTR / Ref No:* ${utr}\n\n*👤 CUSTOMER INFO*\nName: ${name}\nPhone: ${phone}\n\n*📍 ADDRESS*\n${address}\n\n------------------------\n_Hi KICKS4U Team, I have made the payment. Please verify my UTR and dispatch the order._`;
+        card.className =
+            "product-card bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm";
 
-            const whatsappURL = `https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappURL, '_blank');
-            closeModal();
-        }
 
-        renderProducts();
-    </script>
+        card.innerHTML = `
+
+            <div class="relative bg-gray-100 overflow-hidden">
+
+                <img
+                    src="${product.images[0]}"
+                    loading="lazy"
+                    alt="${escapeHTML(product.name)}"
+                    class="product-image w-full aspect-square object-cover">
+
+                <span
+                    class="absolute top-3 left-3 bg-white/95 px-2.5 py-1 rounded-full text-[10px] font-black">
+                    ${product.category}
+                </span>
+
+                <button
+                    onclick="event.stopPropagation(); toggleWishlistProduct(${product.id})"
+                    class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 shadow flex items-center justify-center text-lg">
+                    ${wishlist.includes(product.id) ? "♥" : "♡"}
+                </button>
+
+            </div>
+
+
+            <div
+                onclick="openProduct(${product.id})"
+                class="p-4 cursor-pointer">
+
+                <div class="flex items-center gap-2">
+
+                    <span class="bg-green-600 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">
+                        ${product.rating} ★
+                    </span>
+
+                    <span class="text-[11px] text-gray-400">
+                        ${product.reviews} ratings
+                    </span>
+
+                </div>
+
+
+                <h3 class="font-bold text-sm md:text-base mt-2 line-clamp-2 min-h-[40px]">
+                    ${escapeHTML(product.name)}
+                </h3>
+
+
+                <div class="mt-3 flex items-center gap-2 flex-wrap">
+
+                    <span class="font-black text-lg">
+                        ₹${product.price.toLocaleString("en-IN")}
+                    </span>
+
+                    <span class="text-xs text-gray-400 line-through">
+                        ₹${product.mrp.toLocaleString("en-IN")}
+                    </span>
+
+                    <span class="text-xs text-green-600 font-bold">
+                        ${discount}% off
+                    </span>
+
+                </div>
+
+
+                <p class="text-xs text-gray-500 mt-2">
+                    ${escapeHTML(product.material)}
+                </p>
+
+            </div>
+
+
+            <div class="px-4 pb-4">
+
+                <button
+                    onclick="openProduct(${product.id})"
+                    class="w-full bg-gray-950 text-white rounded-xl py-2.5 text-sm font-black hover:bg-indigo-600 transition">
+                    View Product
+                </button>
+
+            </div>
+        `;
+
+        grid.appendChild(card);
+
+    });
+
+}
+
+
+/* =========================================================
+   PRODUCT DETAIL
+========================================================= */
+
+function openProduct(id) {
+
+    selectedProduct =
+        products.find(product => product.id === id);
+
+    if (!selectedProduct) return;
+
+    quantity = 1;
+    selectedSize = null;
+
+    document.getElementById("quantityValue").innerText = "1";
+
+    document.getElementById("detailName").innerText =
+        selectedProduct.name;
+
+    document.getElementById("detailCategory").innerText =
+        selectedProduct.category;
+
+    document.getElementById("detailRating").innerText =
+        `${selectedProduct.rating} ★`;
+
+    document.getElementById("detailReviews").innerText =
+        `${selectedProduct.reviews} ratings & reviews`;
+
+    document.getElementById("detailPrice").innerText =
+        `₹${selectedProduct.price.toLocaleString("en-IN")}`;
+
+    document.getElementById("detailMrp").innerText =
+        `₹${selectedProduct.mrp.toLocaleString("en-IN")}`;
+
+    document.getElementById("detailDiscount").innerText =
+        `${Math.round((1 - selectedProduct.price / selectedProduct.mrp) * 100)}% OFF`;
+
+    document.getElementById("detailDescription").innerText =
+        selectedProduct.description;
+
+    document.getElementById("detailMaterial").innerText =
+        selectedProduct.material;
+
+    document.getElementById("detailSole").innerText =
+        selectedProduct.sole;
+
+    document.getElementById("detailFit").innerText =
+        selectedProduct.fit;
+
+    document.getElementById("detailUsage").innerText =
+        selectedProduct.usage;
+
+
+    const mainImage =
+        document.getElementById("mainProductImage");
+
+    mainImage.src =
+        selectedProduct.images[0];
+
+    mainImage.classList.remove("zoomed");
+
+
+    const thumbnails =
+        document.getElementById("thumbnailContainer");
+
+    thumbnails.innerHTML = "";
+
+
+    selectedProduct.images.forEach((image, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 " +
+            (index === 0
+                ? "border-indigo-600"
+                : "border-gray-200");
+
+        button.innerHTML =
+            `<img src="${image}" class="w-full h-full object-cover">`;
+
+        button.onclick = () => {
+
+            mainImage.src = image;
+
+            document.querySelectorAll(
+                "#thumbnailContainer button"
+            ).forEach(btn => {
+                btn.classList.remove("border-indigo-600");
+                btn.classList.add("border-gray-200");
+            });
+
+            button.classList.remove("border-gray-200");
+            button.classList.add("border-indigo-600");
+
+        };
+
+        thumbnails.appendChild(button);
+
+    });
+
+
+    const sizeBox =
+        document.getElementById("sizeContainer");
+
+    sizeBox.innerHTML = "";
+
+    selectedProduct.sizes.forEach(size => {
+
+        const button =
+            document.createElement("button");
+
+        button.innerText = size;
+
+        button.className =
+            "w-12 h-10 rounded-lg border border-gray-300 font-bold text-sm hover:border-indigo-600";
+
+        button.onclick = () => {
+
+            selectedSize = size;
+
+            document.querySelectorAll(
+                "#sizeContainer button"
+            ).forEach(btn => {
+                btn.classList.remove(
+                    "bg-black",
+                    "text-white",
+                    "border-black"
+                );
+            });
+
+            button.classList.add(
+                "bg-black",
+                "text-white",
+                "border-black"
+            );
+
+        };
+
+        sizeBox.appendChild(button);
+
+    });
+
+
+    document.getElementById("productModal")
+        .classList.remove("hidden");
+
+    document.body.style.overflow = "hidden";
+
+}
+
+
+function closeProductModal() {
+
+    document.getElementById("productModal")
+        .classList.add("hidden");
+
+    document.body.style.overflow = "";
+
+}
+
+
+function toggleZoom() {
+
+    document.getElementById("mainProductImage")
+        .classList.toggle("zoomed");
+
+}
+
+
+function changeQuantity(change) {
+
+    quantity += change;
+
+    if (quantity < 1) quantity = 1;
+
+    if (quantity > 10) quantity = 10;
+
+    document.getElementById("quantityValue")
+        .innerText = quantity;
+
+}
+
+
+/* =========================================================
+   CART
+========================================================= */
+
+function addToCart(product, size, qty) {
+
+    const existing =
+        cart.find(
+            item =>
+                item.productId === product.id &&
+                item.size === size
+        );
+
+    if (existing) {
+        existing.quantity += qty;
+    } else {
+
+        cart.push({
+            productId: product.id,
+            size,
+            quantity: qty
+        });
+
+    }
+
+    saveCart();
+
+    updateCartCount();
+
+}
+
+
+function addToCartFromDetail() {
+
+    if (!selectedSize) {
+        alert("Please select a size first.");
+        return;
+    }
+
+    addToCart(
+        selectedProduct,
+        selectedSize,
+        quantity
+    );
+
+    closeProductModal();
+
+    openCart();
+
+}
+
+
+function buyCurrentProduct() {
+
+    if (!selectedSize) {
+        alert("Please select a size first.");
+        return;
+    }
+
+    addToCart(
+        selectedProduct,
+        selectedSize,
+        quantity
+    );
+
+    closeProductModal();
+
+    openCheckout();
+
+}
+
+
+function saveCart() {
+
+    localStorage.setItem(
+        "kicks4u_cart",
+        JSON.stringify(cart)
+    );
+
+}
+
+
+function updateCartCount() {
+
+    const count =
+        cart.reduce(
+            (total,item) => total + item.quantity,
+            0
+        );
+
+    document.getElementById("cartCount")
+        .innerText = count;
+
+}
+
+
+function getCartItems() {
+
+    return cart.map(item => {
+
+        const product =
+            products.find(
+                p => p.id === item.productId
+            );
+
+        return {
+            ...item,
+            product
+        };
+
+    }).filter(item => item.product);
+
+}
+
+
+function openCart() {
+
+    renderCart();
+
+    document.getElementById("cartOverlay")
+        .classList.remove("hidden");
+
+    document.getElementById("cartDrawer")
+        .classList.remove("translate-x-full");
+
+}
+
+
+function closeCart() {
+
+    document.getElementById("cartOverlay")
+        .classList.add("hidden");
+
+    document.getElementById("cartDrawer")
+        .classList.add("translate-x-full");
+
+}
+
+
+function renderCart() {
+
+    const container =
+        document.getElementById("cartItems");
+
+    const items =
+        getCartItems();
+
+    document.getElementById("cartSubtitle")
+        .innerText =
+        `${items.length} product${items.length !== 1 ? "s" : ""}`;
+
+
+    if (!items.length) {
+
+        container.innerHTML = `
+            <div class="text-center py-20">
+                <div class="text-5xl mb-4">🛒</div>
+                <h3 class="font-black text-lg">Your cart is empty</h3>
+                <p class="text-gray-500 text-sm mt-2">
+                    Add some footwear to get started.
+                </p>
+            </div>
+        `;
+
+    } else {
+
+        container.innerHTML = items.map(item => `
+
+            <div class="flex gap-3 py-4 border-b">
+
+                <img
+                    src="${item.product.images[0]}"
+                    class="w-20 h-20 object-cover rounded-xl bg-gray-100">
+
+                <div class="flex-1">
+
+                    <h4 class="font-bold text-sm">
+                        ${escapeHTML(item.product.name)}
+                    </h4>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                        Size ${item.size}
+                    </p>
+
+                    <div class="flex justify-between items-center mt-2">
+
+                        <strong>
+                            ₹${(item.product.price * item.quantity).toLocaleString("en-IN")}
+                        </strong>
+
+                        <div class="flex items-center border rounded-lg">
+
+                            <button
+                                onclick="changeCartQty(${item.productId}, ${item.size}, -1)"
+                                class="px-2 py-1">
+                                −
+                            </button>
+
+                            <span class="px-2 text-xs">
+                                ${item.quantity}
+                            </span>
+
+                            <button
+                                onclick="changeCartQty(${item.productId}, ${item.size}, 1)"
+                                class="px-2 py-1">
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `).join("");
+
+    }
+
+
+    const subtotal =
+        items.reduce(
+            (sum,item) =>
+                sum +
+                item.product.price *
+                item.quantity,
+            0
+        );
+
+    const delivery =
+        subtotal >= 999 || subtotal === 0
+            ? 0
+            : 49;
+
+    document.getElementById("cartSubtotal")
+        .innerText =
+        `₹${subtotal.toLocaleString("en-IN")}`;
+
+    document.getElementById("cartDelivery")
+        .innerText =
+        delivery === 0
+            ? "FREE"
+            : `₹${delivery}`;
+
+    document.getElementById("cartTotal")
+        .innerText =
+        `₹${(subtotal + delivery).toLocaleString("en-IN")}`;
+
+}
+
+
+function changeCartQty(productId, size, change) {
+
+    const item =
+        cart.find(
+            x =>
+                x.productId === productId &&
+                x.size === size
+        );
+
+    if (!item) return;
+
+    item.quantity += change;
+
+    if (item.quantity <= 0) {
+
+        cart =
+            cart.filter(
+                x =>
+                    !(
+                        x.productId === productId &&
+                        x.size === size
+                    )
+            );
+
+    }
+
+    saveCart();
+
+    updateCartCount();
+
+    renderCart();
+
+}
+
+
+/* =========================================================
+   CHECKOUT
+========================================================= */
+
+function openCheckout() {
+
+    const items =
+        getCartItems();
+
+    if (!items.length) {
+
+        alert("Your cart is empty.");
+
+        return;
+
+    }
+
+    closeCart();
+
+    renderCheckout();
+
+    document.getElementById("checkoutModal")
+        .classList.remove("hidden");
+
+    document.body.style.overflow = "hidden";
+
+}
+
+
+function closeCheckout() {
+
+    document.getElementById("checkoutModal")
+        .classList.add("hidden");
+
+    document.body.style.overflow = "";
+
+}
+
+
+function renderCheckout() {
+
+    const items =
+        getCartItems();
+
+    const subtotal =
+        items.reduce(
+            (sum,item) =>
+                sum +
+                item.product.price *
+                item.quantity,
+            0
+        );
+
+    const delivery =
+        subtotal >= 999 ? 0 : 49;
+
+    document.getElementById("checkoutItems")
+        .innerHTML =
+        items.map(item => `
+
+            <div class="flex gap-3 py-3 border-b">
+
+                <img
+                    src="${item.product.images[0]}"
+                    class="w-14 h-14 rounded-lg object-cover">
+
+                <div class="flex-1">
+
+                    <div class="font-bold text-sm">
+                        ${escapeHTML(item.product.name)}
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        Size ${item.size} · Qty ${item.quantity}
+                    </div>
+
+                </div>
+
+                <strong class="text-sm">
+                    ₹${(item.product.price * item.quantity).toLocaleString("en-IN")}
+                </strong>
+
+            </div>
+
+        `).join("");
+
+
+    document.getElementById("checkoutSubtotal")
+        .innerText =
+        `₹${subtotal.toLocaleString("en-IN")}`;
+
+    document.getElementById("checkoutDelivery")
+        .innerText =
+        delivery === 0
+            ? "FREE"
+            : `₹${delivery}`;
+
+    document.getElementById("checkoutTotal")
+        .innerText =
+        `₹${(subtotal + delivery).toLocaleString("en-IN")}`;
+
+}
+
+
+function updatePaymentUI() {
+
+    const method =
+        document.querySelector(
+            'input[name="payment"]:checked'
+        ).value;
+
+    document.getElementById("onlinePaymentBox")
+        .classList.toggle(
+            "hidden",
+            method !== "online"
+        );
+
+}
+
+
+function placeOrder() {
+
+    const name =
+        document.getElementById("checkoutName").value.trim();
+
+    const phone =
+        document.getElementById("checkoutPhone").value.trim();
+
+    const address =
+        document.getElementById("checkoutAddress").value.trim();
+
+    const city =
+        document.getElementById("checkoutCity").value.trim();
+
+    const pincode =
+        document.getElementById("checkoutPincode").value.trim();
+
+
+    if (!name || !phone || !address || !city || !pincode) {
+
+        alert("Please complete all delivery details.");
+
+        return;
+
+    }
+
+
+    const payment =
+        document.querySelector(
+            'input[name="payment"]:checked'
+        ).value;
+
+
+    /*
+       IMPORTANT:
+
+       This demo only validates the checkout form.
+
+       For real online payments:
+       1. Send order details to your backend.
+       2. Create an order with your payment gateway.
+       3. Open the gateway's secure checkout.
+       4. Verify payment on the backend.
+       5. Only then mark the order as paid.
+
+       NEVER trust a frontend "payment successful" flag.
+    */
+
+
+    if (payment === "online") {
+
+        alert(
+            "Online payment gateway is ready to be connected. " +
+            "Connect your backend/payment gateway here."
+        );
+
+    } else {
+
+        const orderId =
+            "K4U-" +
+            Date.now().toString().slice(-8);
+
+        alert(
+            `COD order created successfully!\n\nOrder ID: ${orderId}`
+        );
+
+        cart = [];
+
+        saveCart();
+
+        updateCartCount();
+
+        closeCheckout();
+
+        renderCart();
+
+    }
+
+}
+
+
+/* =========================================================
+   WISHLIST
+========================================================= */
+
+function toggleWishlistProduct(id) {
+
+    if (wishlist.includes(id)) {
+
+        wishlist =
+            wishlist.filter(item => item !== id);
+
+    } else {
+
+        wishlist.push(id);
+
+    }
+
+    localStorage.setItem(
+        "kicks4u_wishlist",
+        JSON.stringify(wishlist)
+    );
+
+    renderProducts();
+
+}
+
+
+function addCurrentToWishlist() {
+
+    if (!selectedProduct) return;
+
+    toggleWishlistProduct(selectedProduct.id);
+
+}
+
+
+function toggleWishlist() {
+
+    const items =
+        products.filter(
+            product =>
+                wishlist.includes(product.id)
+        );
+
+    if (!items.length) {
+
+        alert("Your wishlist is empty.");
+
+        return;
+
+    }
+
+    alert(
+        items.map(item => item.name).join("\n")
+    );
+
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+function setCategory(category) {
+
+    currentCategory = category;
+
+    document.querySelectorAll(".category-btn")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.innerText === category
+            );
+
+        });
+
+    renderProducts();
+
+    document.getElementById("products")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+
+
+/* =========================================================
+   CHATBOT
+========================================================= */
+
+function toggleChat() {
+
+    document.getElementById("chatBox")
+        .classList.toggle("hidden");
+
+}
+
+
+function quickChat(message) {
+
+    document.getElementById("chatInput")
+        .value = message;
+
+    document.querySelector(
+        "#chatBox form"
+    ).dispatchEvent(
+        new Event("submit", {
+            bubbles: true,
+            cancelable: true
+        })
+    );
+
+}
+
+
+function addChatMessage(text, sender="bot") {
+
+    const box =
+        document.getElementById("chatMessages");
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "chat-message max-w-[85%] rounded-xl p-3 text-sm " +
+        (sender === "user"
+            ? "ml-auto bg-indigo-600 text-white"
+            : "bg-white border");
+
+    div.innerText = text;
+
+    box.appendChild(div);
+
+    box.scrollTop = box.scrollHeight;
+
+}
+
+
+async function sendChat(event) {
+
+    event.preventDefault();
+
+    const input =
+        document.getElementById("chatInput");
+
+    const message =
+        input.value.trim();
+
+    if (!message) return;
+
+    addChatMessage(message, "user");
+
+    input.value = "";
+
+
+    /*
+       LOCAL SMART ANSWERS
+
+       This makes the chatbot useful even without an AI API.
+    */
+
+    const answer =
+        getLocalChatAnswer(message);
+
+    if (answer) {
+
+        setTimeout(() => {
+
+            addChatMessage(answer, "bot");
+
+        }, 400);
+
+        return;
+
+    }
+
+
+    /*
+       OPTIONAL AI BACKEND
+
+       When you create a secure backend endpoint:
+
+       POST /api/chat
+
+       Body:
+       {
+           "message": "user message"
+       }
+
+       The server can call your chosen AI provider.
+
+       Do NOT put an AI secret/API key in this HTML.
+    */
+
+
+    setTimeout(() => {
+
+        addChatMessage(
+            "I can help with products, size, delivery, payment and checkout. For a detailed question, please contact KICKS4U support.",
+            "bot"
+        );
+
+    }, 500);
+
+}
+
+
+function getLocalChatAnswer(message) {
+
+    const text =
+        message.toLowerCase();
+
+
+    if (
+        text.includes("running") ||
+        text.includes("jog")
+    ) {
+
+        return "For running, look for our Running category. AirFlex Runner and TrailForce Outdoor are designed around lightweight cushioning and grip.";
+
+    }
+
+
+    if (
+        text.includes("payment") ||
+        text.includes("upi") ||
+        text.includes("card")
+    ) {
+
+        return "KICKS4U checkout supports Online Payment and COD in this interface. Online payment can include UPI, cards, net banking and supported wallets after your gateway is connected.";
+
+    }
+
+
+    if (
+        text.includes("cod") ||
+        text.includes("cash")
+    ) {
+
+        return "Cash on Delivery is available in the checkout interface. Final COD availability can depend on your delivery location and shipping configuration.";
+
+    }
+
+
+    if (
+        text.includes("delivery") ||
+        text.includes("shipping")
+    ) {
+
+        return "Delivery timing depends on your PIN code and courier availability. The checkout flow is designed to show delivery information after the address is entered.";
+
+    }
+
+
+    if (
+        text.includes("size") ||
+        text.includes("fit")
+    ) {
+
+        return "Choose your usual footwear size and check the Size Guide before ordering. If you're between sizes, compare your foot measurement with your size chart.";
+
+    }
+
+
+    if (
+        text.includes("return") ||
+        text.includes("refund")
+    ) {
+
+        return "Returns and refunds should follow the store's published return policy. Add your exact policy before launching the store.";
+
+    }
+
+
+    if (
+        text.includes("material") ||
+        text.includes("leather")
+    ) {
+
+        return "Each product detail page shows its material, sole, fit and intended usage. Open a product to see those specifications.";
+
+    }
+
+
+    if (
+        text.includes("hello") ||
+        text.includes("hi") ||
+        text.includes("hey")
+    ) {
+
+        return "Hey 👋 Welcome to KICKS4U! Tell me what footwear you're looking for and I'll help you find the right category.";
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   SIZE GUIDE
+========================================================= */
+
+function showSizeGuide() {
+
+    alert(
+`KICKS4U SIZE GUIDE
+
+India / UK
+6 → approximately 24.5 cm
+7 → approximately 25.4 cm
+8 → approximately 26.2 cm
+9 → approximately 27.1 cm
+10 → approximately 27.9 cm
+11 → approximately 28.8 cm
+
+Always verify the specific product's size chart before ordering.`
+    );
+
+}
+
+
+/* =========================================================
+   UTILS
+========================================================= */
+
+function scrollToTop() {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+renderProducts();
+
+updateCartCount();
+
+</script>
+
 </body>
 </html>
