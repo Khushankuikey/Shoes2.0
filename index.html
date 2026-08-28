@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kicks Hub | The Ultimate Footwear Store</title>
+    <title>KICKS4U | The Ultimate Footwear Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,7 @@
     <nav class="bg-slate-900 text-white p-4 shadow-2xl sticky top-0 z-40">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <h1 class="text-2xl md:text-3xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                KICKS HUB
+                KICKS4U
             </h1>
             <div class="flex-grow md:max-w-md mx-4">
                 <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Search shoes, sandals..." class="w-full px-4 py-2 rounded-full text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
@@ -51,6 +51,12 @@
         </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-gray-400 py-8 text-center border-t border-slate-800">
+        <p>&copy; 2026 KICKS4U. All rights reserved.</p>
+        <p class="mt-2 text-sm">Need help? Email us at <a href="mailto:uikeykhushank60@gmail.com" class="text-blue-400 hover:text-blue-300">uikeykhushank60@gmail.com</a></p>
+    </footer>
+
     <!-- ORDER & UPI PAYMENT MODAL -->
     <div id="orderModal" class="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 overflow-y-auto backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full mx-4 my-8 transform scale-95 transition-transform duration-300 relative" id="modalContent">
@@ -70,11 +76,9 @@
                 <!-- UPI PAYMENT SECTION -->
                 <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-center">
                     <p class="text-xs font-bold text-indigo-800 uppercase tracking-wide mb-2">1. Scan & Pay</p>
-                    <!-- YAHAN TUMHARA QR CODE AAYEGA -->
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" class="h-10 mx-auto mb-2 opacity-80">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" class="h-10 mx-auto mb-2 opacity-80" alt="UPI">
                     <div class="bg-white p-2 rounded border border-indigo-100 inline-block mb-2">
-                        <!-- Placeholder QR Image (Replace with your actual GPay/PhonePe QR link later) -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=6260155319@upi&pn=Khushank&am=0" alt="UPI QR" class="h-32 w-32 mx-auto">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=6260155319@upi&pn=KICKS4U&am=0" alt="UPI QR" class="h-32 w-32 mx-auto">
                     </div>
                     <p class="text-[10px] text-gray-500 font-semibold">Scan with GPay, PhonePe, or Paytm</p>
                     
@@ -116,428 +120,71 @@
     </div>
 
     <script>
-        const products = [
-    {
-        "name": "Executive High-Top Kicks",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 1480,
-        "desc": "Advanced cushioning technology. Breathable upper with carbon-fiber plate for maximum style and comfort."
-    },
-    {
-        "name": "Alpha Leather Oxfords",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80",
-        "price": 1234,
-        "desc": "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials. A guaranteed head-turner."
-    },
-    {
-        "name": "Titan Chelsea Boots",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 1754,
-        "desc": "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials. A guaranteed head-turner."
-    },
-    {
-        "name": "Majestic Formals",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80",
-        "price": 1008,
-        "desc": "Handcrafted with a glossy finish. Features a pointed toe design and anti-slip sole. Elevates your professional look."
-    },
-    {
-        "name": "Alpha Derby Shoes",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
-        "price": 1808,
-        "desc": "Handcrafted with a glossy finish. Features a pointed toe design and anti-slip sole. Elevates your professional look."
-    },
-    {
-        "name": "Royal Air-Runners",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 1039,
-        "desc": "Handcrafted with a glossy finish. Features a pointed toe design and anti-slip sole. Elevates your professional look."
-    },
-    {
-        "name": "Alpha Formals",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1614252232525-a111f6262939?w=600&q=80",
-        "price": 1188,
-        "desc": "Advanced cushioning technology. Breathable upper with carbon-fiber plate for maximum style and comfort."
-    },
-    {
-        "name": "Elite Suede Loafers",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
-        "price": 1753,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Supreme Brogues",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80",
-        "price": 1030,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Signature Leather Oxfords",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80",
-        "price": 1928,
-        "desc": "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials. A guaranteed head-turner."
-    },
-    {
-        "name": "Majestic Leather Oxfords",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80",
-        "price": 1407,
-        "desc": "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials. A guaranteed head-turner."
-    },
-    {
-        "name": "Royal Formals",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&q=80",
-        "price": 1743,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Alpha Brogues",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 1784,
-        "desc": "Handcrafted with a glossy finish. Features a pointed toe design and anti-slip sole. Elevates your professional look."
-    },
-    {
-        "name": "Supreme Brogues",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 1028,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Royal Suede Loafers",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 1230,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Royal Derby Shoes",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
-        "price": 1905,
-        "desc": "Advanced cushioning technology. Breathable upper with carbon-fiber plate for maximum style and comfort."
-    },
-    {
-        "name": "Majestic Chelsea Boots",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 1210,
-        "desc": "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials. A guaranteed head-turner."
-    },
-    {
-        "name": "Supreme Chelsea Boots",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 1411,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Prime Brogues",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80",
-        "price": 1014,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Majestic Brogues",
-        "type": "Premium",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 1862,
-        "desc": "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties and office wear."
-    },
-    {
-        "name": "Dynamic Athletics",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&q=80",
-        "price": 802,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Vibe Trail Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 707,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Classic Running Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
-        "price": 923,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Urban Trail Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 613,
-        "desc": "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans, shorts, and chinos."
-    },
-    {
-        "name": "Dynamic Gym Trainers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80",
-        "price": 588,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Nova Trail Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80",
-        "price": 706,
-        "desc": "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college, evening walks, or casual outings."
-    },
-    {
-        "name": "Neo Skater Kicks",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80",
-        "price": 663,
-        "desc": "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans, shorts, and chinos."
-    },
-    {
-        "name": "Core Athletics",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&q=80",
-        "price": 801,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Core Running Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1614252232525-a111f6262939?w=600&q=80",
-        "price": 575,
-        "desc": "Flexible sole perfect for daily use. Odor-resistant inner lining ensures your feet stay fresh all day."
-    },
-    {
-        "name": "Classic Running Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1614252232525-a111f6262939?w=600&q=80",
-        "price": 616,
-        "desc": "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college, evening walks, or casual outings."
-    },
-    {
-        "name": "Street Athletics",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
-        "price": 822,
-        "desc": "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college, evening walks, or casual outings."
-    },
-    {
-        "name": "Active Slip-On Loafers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
-        "price": 990,
-        "desc": "Flexible sole perfect for daily use. Odor-resistant inner lining ensures your feet stay fresh all day."
-    },
-    {
-        "name": "Urban Gym Trainers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80",
-        "price": 957,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Dynamic Skater Kicks",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 580,
-        "desc": "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact. Built for the adventurous soul."
-    },
-    {
-        "name": "Classic Athletics",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
-        "price": 535,
-        "desc": "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans, shorts, and chinos."
-    },
-    {
-        "name": "Urban Slip-On Loafers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
-        "price": 942,
-        "desc": "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college, evening walks, or casual outings."
-    },
-    {
-        "name": "Core Canvas Sneakers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80",
-        "price": 643,
-        "desc": "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college, evening walks, or casual outings."
-    },
-    {
-        "name": "Street Canvas Sneakers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
-        "price": 712,
-        "desc": "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans, shorts, and chinos."
-    },
-    {
-        "name": "Classic Slip-On Loafers",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80",
-        "price": 864,
-        "desc": "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans, shorts, and chinos."
-    },
-    {
-        "name": "Urban Trail Shoes",
-        "type": "Casual",
-        "image": "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&q=80",
-        "price": 772,
-        "desc": "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college, evening walks, or casual outings."
-    },
-    {
-        "name": "Cloud Winter Slippers",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1596700877995-1f9e23927233?w=600&q=80",
-        "price": 342,
-        "desc": "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house."
-    },
-    {
-        "name": "Zen Foam Slides",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
-        "price": 335,
-        "desc": "Tough straps that don't tear. Water-friendly design makes it perfect for monsoon season or beach vacations."
-    },
-    {
-        "name": "Cozy Leather Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80",
-        "price": 411,
-        "desc": "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house."
-    },
-    {
-        "name": "Aqua Cross Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1582046461460-70f90760e408?w=600&q=80",
-        "price": 490,
-        "desc": "Doctor-recommended arch support and memory foam footbed. Reduces knee and heel pain for all-day standing."
-    },
-    {
-        "name": "Daily Winter Slippers",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=600&q=80",
-        "price": 440,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Cozy Leather Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
-        "price": 489,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Rugged Leather Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1582046461460-70f90760e408?w=600&q=80",
-        "price": 465,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Flex Rubber Chappal",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1571216664539-780c850fb97a?w=600&q=80",
-        "price": 387,
-        "desc": "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house."
-    },
-    {
-        "name": "Chill Winter Slippers",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80",
-        "price": 304,
-        "desc": "Tough straps that don't tear. Water-friendly design makes it perfect for monsoon season or beach vacations."
-    },
-    {
-        "name": "Rugged Rubber Chappal",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
-        "price": 264,
-        "desc": "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house."
-    },
-    {
-        "name": "Cloud Winter Slippers",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=600&q=80",
-        "price": 406,
-        "desc": "Doctor-recommended arch support and memory foam footbed. Reduces knee and heel pain for all-day standing."
-    },
-    {
-        "name": "Chill Foam Slides",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1596700877995-1f9e23927233?w=600&q=80",
-        "price": 214,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Rugged Rubber Chappal",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1582046461460-70f90760e408?w=600&q=80",
-        "price": 200,
-        "desc": "Tough straps that don't tear. Water-friendly design makes it perfect for monsoon season or beach vacations."
-    },
-    {
-        "name": "Zen Rubber Chappal",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
-        "price": 467,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Ortho Leather Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1596700877995-1f9e23927233?w=600&q=80",
-        "price": 401,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Breeze Leather Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=600&q=80",
-        "price": 402,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Aqua Comfort Floaters",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1596700877995-1f9e23927233?w=600&q=80",
-        "price": 484,
-        "desc": "High-density rubber ensures it doesn't thin out quickly. The most affordable, no-nonsense daily wear."
-    },
-    {
-        "name": "Rugged Foam Slides",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
-        "price": 215,
-        "desc": "Doctor-recommended arch support and memory foam footbed. Reduces knee and heel pain for all-day standing."
-    },
-    {
-        "name": "Breeze Leather Sandals",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1571216664539-780c850fb97a?w=600&q=80",
-        "price": 352,
-        "desc": "Doctor-recommended arch support and memory foam footbed. Reduces knee and heel pain for all-day standing."
-    },
-    {
-        "name": "Ortho Foam Slides",
-        "type": "Slippers",
-        "image": "https://images.unsplash.com/photo-1582046461460-70f90760e408?w=600&q=80",
-        "price": 298,
-        "desc": "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house."
-    }
-];
+        // Generating 60 unique items securely via JS
+        const basePremium = [
+            { name: "Executive High-Top Kicks", img: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=600&q=80", desc: "Advanced cushioning technology. Breathable upper with carbon-fiber plate for maximum style." },
+            { name: "Alpha Leather Oxfords", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80", desc: "100% Genuine Full-grain leather. Water-resistant and durable. Perfect for elite parties." },
+            { name: "Titan Chelsea Boots", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80", desc: "Retro streetwear style. Padded collar for extreme ankle comfort. Made with premium materials." },
+            { name: "Majestic Formals", img: "https://images.unsplash.com/photo-1584990347449-a6e14a27ea80?w=600&q=80", desc: "Handcrafted with a glossy finish. Features a pointed toe design and anti-slip sole." },
+            { name: "Elite Suede Loafers", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80", desc: "Slip into luxury with these ultra-soft suede loafers. Anti-slip rubber sole for perfect grip." },
+            { name: "Royal Derby Shoes", img: "https://images.unsplash.com/photo-1614252232525-a111f6262939?w=600&q=80", desc: "Classic derby silhouette with a modern touch. Memory foam insole for all-day office comfort." }
+        ];
+
+        const baseCasual = [
+            { name: "Dynamic Athletics", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&q=80", desc: "Thick grip lugs for extreme traction. Reinforced toe cap protects against impact." },
+            { name: "Urban Trail Shoes", img: "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&q=80", desc: "The ultimate wardrobe essential. Minimalist design that pairs perfectly with jeans and shorts." },
+            { name: "Classic Running Shoes", img: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80", desc: "Flexible sole perfect for daily use. Odor-resistant inner lining ensures your feet stay fresh." },
+            { name: "Neo Skater Kicks", img: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80", desc: "No laces, no hassle. Ultra-lightweight and breathable. Perfect for college or evening walks." }
+        ];
+
+        const baseSlippers = [
+            { name: "Cloud Winter Slippers", img: "https://images.unsplash.com/photo-1596700877995-1f9e23927233?w=600&q=80", desc: "Feels like walking on clouds. Super soft, lightweight, and perfect for wearing around the house." },
+            { name: "Zen Foam Slides", img: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80", desc: "Tough straps that don't tear. Water-friendly design makes it perfect for beach vacations." },
+            { name: "Cozy Leather Sandals", img: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80", desc: "Doctor-recommended arch support and memory foam footbed. Reduces knee and heel pain." },
+            { name: "Daily Rubber Chappal", img: "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=600&q=80", desc: "High-density rubber ensures it doesn't thin out quickly. The most affordable, daily wear." },
+            { name: "Breeze Cross Sandals", img: "https://images.unsplash.com/photo-1571216664539-780c850fb97a?w=600&q=80", desc: "Ethnic fusion look. Perfect for traditional wear and highly durable for daily outings." }
+        ];
+
+        const products = [];
+        
+        // Generating 20 Premium
+        for(let i=0; i<20; i++) {
+            const base = basePremium[i % basePremium.length];
+            products.push({
+                name: `${base.name} V${i+1}`,
+                type: "Premium",
+                image: base.img,
+                price: Math.floor(Math.random() * (1999 - 1000 + 1) + 1000),
+                desc: base.desc
+            });
+        }
+        
+        // Generating 20 Casual
+        for(let i=0; i<20; i++) {
+            const base = baseCasual[i % baseCasual.length];
+            products.push({
+                name: `${base.name} Gen-${i+1}`,
+                type: "Casual",
+                image: base.img,
+                price: Math.floor(Math.random() * (999 - 500 + 1) + 500),
+                desc: base.desc
+            });
+        }
+
+        // Generating 20 Slippers
+        for(let i=0; i<20; i++) {
+            const base = baseSlippers[i % baseSlippers.length];
+            products.push({
+                name: `${base.name} Edition-${i+1}`,
+                type: "Slippers",
+                image: base.img,
+                price: Math.floor(Math.random() * (499 - 199 + 1) + 199),
+                desc: base.desc
+            });
+        }
+
+        // Shuffle Array
+        products.sort(() => Math.random() - 0.5);
 
         const productGrid = document.getElementById('productGrid');
         const noResult = document.getElementById('noResult');
@@ -664,10 +311,7 @@
                     statusText.innerText = "Location mapped 📍";
                     statusText.className = "text-xs text-green-600 mt-1 block font-bold";
                     
-                    addressBox.value = `📍 GPS Location:
-${mapLink}
-
-[House No.]: `;
+                    addressBox.value = `📍 GPS Location:\n${mapLink}\n\n[House No.]: `;
                     addressBox.focus();
                 },
                 (error) => {
@@ -691,21 +335,7 @@ ${mapLink}
             // YOUR WHATSAPP NUMBER
             const myWhatsAppNumber = "916260155319"; 
             
-            const message = `*✅ NEW PAID ORDER ALERT ✅*
-
-*🛍️ Item:* ${selectedProduct}
-*💰 Amount Paid:* ₹${selectedPrice}
-*💳 UTR / Ref No:* ${utr}
-
-*👤 CUSTOMER INFO*
-Name: ${name}
-Phone: ${phone}
-
-*📍 ADDRESS*
-${address}
-
-------------------------
-_Hi Khushank, I have made the payment. Please verify my UTR and dispatch the order._`;
+            const message = `*✅ NEW PAID ORDER ALERT ✅*\n\n*🛍️ Item:* ${selectedProduct}\n*💰 Amount Paid:* ₹${selectedPrice}\n*💳 UTR / Ref No:* ${utr}\n\n*👤 CUSTOMER INFO*\nName: ${name}\nPhone: ${phone}\n\n*📍 ADDRESS*\n${address}\n\n------------------------\n_Hi KICKS4U Team, I have made the payment. Please verify my UTR and dispatch the order._`;
 
             const whatsappURL = `https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(message)}`;
             window.open(whatsappURL, '_blank');
@@ -716,4 +346,3 @@ _Hi Khushank, I have made the payment. Please verify my UTR and dispatch the ord
     </script>
 </body>
 </html>
-
