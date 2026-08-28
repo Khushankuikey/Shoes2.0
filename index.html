@@ -45,4 +45,134 @@
         <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-300" id="modalContent">
             <div class="text-center">
                 <div class="bg-indigo-100 text-indigo-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Pay via UPI</h3>
+                <p class="text-gray-500 text-sm mb-6" id="modalProductName">Product Name</p>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                    <p class="text-sm text-gray-500 mb-1">Total Amount</p>
+                    <p class="text-3xl font-extrabold text-slate-800" id="modalPrice">₹0</p>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="processUPI()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg flex items-center justify-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="UPI" class="h-5 mr-2 filter brightness-0 invert">
+                        Open UPI App
+                    </button>
+                    <button onclick="closeModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-xl transition">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Product Database
+        const products = [
+            {
+                name: "Nike Urban Runners",
+                category: "Shoes",
+                image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
+                price: 899
+            },
+            {
+                name: "Classic White Sneakers",
+                category: "Shoes",
+                image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=600&q=80",
+                price: 699
+            },
+            {
+                name: "Premium Leather Floaters",
+                category: "Sandals",
+                image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=600&q=80",
+                price: 549
+            },
+            {
+                name: "Casual Strap Sandals",
+                category: "Sandals",
+                image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=600&q=80",
+                price: 450
+            },
+            {
+                name: "Comfort Black Slides",
+                category: "Chappal",
+                image: "https://images.unsplash.com/photo-1562183241-b937e95585b6?auto=format&fit=crop&w=600&q=80",
+                price: 299
+            },
+            {
+                name: "Summer Flip Flops",
+                category: "Chappal",
+                image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&w=600&q=80", // Using a solid alternative image
+                price: 199
+            }
+        ];
+
+        const productGrid = document.getElementById('productGrid');
+        const upiModal = document.getElementById('upiModal');
+        const modalContent = document.getElementById('modalContent');
+
+        // Render Products
+        function renderProducts() {
+            products.forEach((product) => {
+                const cardHTML = `
+                    <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100 flex flex-col">
+                        <div class="relative overflow-hidden">
+                            <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500">
+                            <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-slate-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">
+                                ${product.category}
+                            </span>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-xl text-gray-900 mb-1">${product.name}</h3>
+                                <p class="text-3xl font-extrabold text-indigo-600 mt-3">₹${product.price}</p>
+                            </div>
+                            <button onclick="openModal('${product.name}', ${product.price})" class="mt-6 w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition-colors duration-300 shadow-md">
+                                Buy Now
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productGrid.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // Modal Logic
+        function openModal(name, price) {
+            document.getElementById('modalProductName').innerText = name;
+            document.getElementById('modalPrice').innerText = `₹${price}`;
+            
+            upiModal.classList.remove('hidden');
+            document.body.classList.add('modal-active');
+            
+            // Small delay for animation
+            setTimeout(() => {
+                upiModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            upiModal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            
+            setTimeout(() => {
+                upiModal.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }, 300);
+        }
+
+        function processUPI() {
+            // Frontend simulation for UPI
+            alert("This is a frontend prototype. In a real app, this button will open PhonePe, GPay, or Paytm directly using a UPI Deep Link (upi://pay?pa=yourvpa@upi...).");
+            closeModal();
+        }
+
+        renderProducts();
+    </script>
+</body>
+</html>
