@@ -1,1161 +1,1602 @@
-{
-  "name": "kicks4u-store",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^5.1.0",
-    "razorpay": "^2.9.6",
-    "better-sqlite3": "^11.8.1"
-  }
-}PORT=3000
-
-RAZORPAY_KEY_ID=YOUR_RAZORPAY_KEY_ID
-RAZORPAY_KEY_SECRET=YOUR_RAZORPAY_KEY_SECRET
-RAZORPAY_WEBHOOK_SECRET=YOUR_RAZORPAY_WEBHOOK_SECRET
-
-WHATSAPP_NUMBER=916260155319
-STORE_NAME=KICKS4U
-import express from "express";
-import dotenv from "dotenv";
-import Razorpay from "razorpay";
-import crypto from "crypto";
-import Database from "better-sqlite3";
-import path from "path";
-import { fileURLToPath } from "url";
-
-dotenv.config();
-
-const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const PORT = process.env.PORT || 3000;
-
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
-
-const db = new Database("kicks4u.db");
-
-db.exec(`
-CREATE TABLE IF NOT EXISTS orders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  order_id TEXT UNIQUE NOT NULL,
-  razorpay_order_id TEXT,
-  payment_id TEXT,
-  name TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  address TEXT NOT NULL,
-  product_id TEXT NOT NULL,
-  product_name TEXT NOT NULL,
-  amount INTEGER NOT NULL,
-  payment_status TEXT DEFAULT 'PENDING',
-  order_status TEXT DEFAULT 'PAYMENT_PENDING',
-  created_at TEXT NOT NULL
-);
-`);
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-
-const products = [
-  {
-    id: "snk001",
-    category: "Sneakers",
-    name: "Aero Street X1",
-    price: 1499,
-    material: "Engineered mesh + synthetic leather",
-    description: "Lightweight everyday sneaker with cushioned sole.",
-    images: [
-      "/images/aero-front.jpg",
-      "/images/aero-side.jpg",
-      "/images/aero-back.jpg",
-      "/images/aero-top.jpg",
-      "/images/aero-sole.jpg"
-    ]
-  },
-  {
-    id: "run001",
-    category: "Running",
-    name: "Velocity Runner Pro",
-    price: 1899,
-    material: "Breathable mesh + EVA foam",
-    description: "Daily running and training footwear.",
-    images: [
-      "/images/velocity-front.jpg",
-      "/images/velocity-side.jpg",
-      "/images/velocity-back.jpg",
-      "/images/velocity-top.jpg",
-      "/images/velocity-sole.jpg"
-    ]
-  },
-  {
-    id: "formal001",
-    category: "Formal",
-    name: "Executive Derby",
-    price: 2199,
-    material: "Synthetic leather + cushioned insole",
-    description: "Clean formal silhouette for office and occasions.",
-    images: [
-      "/images/derby-front.jpg",
-      "/images/derby-side.jpg",
-      "/images/derby-back.jpg",
-      "/images/derby-top.jpg",
-      "/images/derby-sole.jpg"
-    ]
-  },
-  {
-    id: "boot001",
-    category: "Boots",
-    name: "Urban Trek Boot",
-    price: 2499,
-    material: "Synthetic leather + rubber outsole",
-    description: "Durable high-ankle boot for everyday streetwear.",
-    images: [
-      "/images/boot-front.jpg",
-      "/images/boot-side.jpg",
-      "/images/boot-back.jpg",
-      "/images/boot-top.jpg",
-      "/images/boot-sole.jpg"
-    ]
-  },
-  {
-    id: "sand001",
-    category: "Sandals",
-    name: "Comfort Cross Sandal",
-    price: 699,
-    material: "EVA footbed + synthetic straps",
-    description: "Lightweight sandal designed for everyday use.",
-    images: [
-      "/images/sandal-front.jpg",
-      "/images/sandal-side.jpg",
-      "/images/sandal-back.jpg",
-      "/images/sandal-top.jpg",
-      "/images/sandal-sole.jpg"
-    ]
-  },
-  {
-    id: "slip001",
-    category: "Slippers",
-    name: "Cloud Comfort Slide",
-    price: 499,
-    material: "EVA foam",
-    description: "Soft everyday slide with lightweight construction.",
-    images: [
-      "/images/slide-front.jpg",
-      "/images/slide-side.jpg",
-      "/images/slide-back.jpg",
-      "/images/slide-top.jpg",
-      "/images/slide-sole.jpg"
-    ]
-  }
-];
-
-app.get("/api/products", (req, res) => {
-  res.json(products);
-});
-
-app.post("/api/payment/order", async (req, res) => {
-  try {
-    const { productId, name, phone, address } = req.body;
-
-    const product = products.find(p => p.id === productId);
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    if (!name || !phone || !address) {
-      return res.status(400).json({
-        error: "Name, phone and address are required"
-      });
-    }
-
-    const receipt = `K4U_${Date.now()}`;
-
-    const order = await razorpay.orders.create({
-      amount: product.price * 100,
-      currency: "INR",
-      receipt,
-      notes: {
-        product_id: product.id,
-        product_name: product.name
-      }
-    });
-
-    const orderId = `K4U-${Date.now()}`;
-
-    db.prepare(`
-      INSERT INTO orders
-      (order_id, razorpay_order_id, name, phone, address,
-       product_id, product_name, amount, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      orderId,
-      order.id,
-      name,
-      phone,
-      address,
-      product.id,
-      product.name,
-      product.price,
-      new Date().toISOString()
-    );
-
-    res.json({
-      key: process.env.RAZORPAY_KEY_ID,
-      razorpayOrderId: order.id,
-      orderId,
-      amount: product.price,
-      currency: "INR",
-      productName: product.name
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Payment order creation failed" });
-  }
-});
-
-app.post("/api/payment/verify", (req, res) => {
-  const {
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    orderId
-  } = req.body;
-
-  const generatedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-    .digest("hex");
-
-  if (generatedSignature !== razorpay_signature) {
-    return res.status(400).json({
-      success: false,
-      error: "Payment verification failed"
-    });
-  }
-
-  db.prepare(`
-    UPDATE orders
-    SET payment_id = ?,
-        payment_status = 'PAID',
-        order_status = 'CONFIRMED'
-    WHERE order_id = ?
-  `).run(razorpay_payment_id, orderId);
-
-  const order = db
-    .prepare(`SELECT * FROM orders WHERE order_id = ?`)
-    .get(orderId);
-
-  const whatsappText =
-    `KICKS4U ORDER CONFIRMED\n\n` +
-    `Order ID: ${order.order_id}\n` +
-    `Product: ${order.product_name}\n` +
-    `Amount: ₹${order.amount}\n` +
-    `Payment: ONLINE PAID\n` +
-    `Delivery: Within 14 days\n` +
-    `Replacement: NOT AVAILABLE`;
-
-  res.json({
-    success: true,
-    order,
-    whatsapp:
-      `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=` +
-      encodeURIComponent(whatsappText)
-  });
-});
-
-app.get("/api/orders/:orderId", (req, res) => {
-  const order = db
-    .prepare(`SELECT * FROM orders WHERE order_id = ?`)
-    .get(req.params.orderId);
-
-  if (!order) {
-    return res.status(404).json({
-      error: "Order not found"
-    });
-  }
-
-  res.json({
-    ...order,
-    deliveryPromise: "Delivery within 14 days",
-    replacementPolicy: "No replacement"
-  });
-});
-
-app.get("/api/orders/phone/:phone", (req, res) => {
-  const orders = db
-    .prepare(`
-      SELECT *
-      FROM orders
-      WHERE phone = ?
-      ORDER BY created_at DESC
-    `)
-    .all(req.params.phone);
-
-  res.json(orders);
-});
-
-app.post("/api/support", (req, res) => {
-  const { message } = req.body;
-
-  const text = String(message || "").toLowerCase();
-
-  let reply =
-    "Hi! Welcome to KICKS4U. I can help with orders, payments, delivery and products.";
-
-  if (text.includes("delivery") || text.includes("deliver")) {
-    reply =
-      "KICKS4U delivery is promised within 14 days of successful payment. You can check your order status from My Orders.";
-  }
-
-  if (text.includes("replacement") || text.includes("replace")) {
-    reply =
-      "KICKS4U currently does not offer replacement. Please check the product details and size information before ordering.";
-  }
-
-  if (text.includes("payment") || text.includes("upi")) {
-    reply =
-      "COD is disabled. Online payment supports the payment methods enabled on the secure payment gateway.";
-  }
-
-  if (text.includes("order")) {
-    reply =
-      "Open My Orders and enter the phone number used during checkout to view your orders and status.";
-  }
-
-  res.json({ reply });
-});
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-app.listen(PORT, () => {
-  console.log(`KICKS4U running on http://localhost:${PORT}`);
-});
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KICKS4U — Premium Footwear</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KICKS4U | Premium Footwear Store</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <style>
-body {
-  font-family: Inter, system-ui, sans-serif;
-  background:#f7f8fc;
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#f6f7fb;
+  color:#0f172a
 }
-
-.hide-scroll::-webkit-scrollbar {
-  display:none;
-}
-
-.product-img {
-  transition:transform .5s ease;
-}
-
-.product-card:hover .product-img {
-  transform:scale(1.06);
-}
-
-.chat-window {
-  box-shadow:0 20px 60px rgba(0,0,0,.25);
-}
-
-.zoomable {
-  cursor:zoom-in;
-}
-
-#viewer {
-  backdrop-filter:blur(10px);
-}
+.no-scroll{overflow:hidden}
+.hide-scroll::-webkit-scrollbar{display:none}
+.product-card{transition:.25s}
+.product-card:hover{transform:translateY(-5px)}
+.product-card img{transition:.5s}
+.product-card:hover img{transform:scale(1.05)}
+.modal-bg{background:rgba(2,6,23,.75);backdrop-filter:blur(8px)}
+.chat-shadow{box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.thumb-active{outline:3px solid #4f46e5}
 </style>
 </head>
 
-<body class="text-slate-900">
+<body>
 
-<header class="sticky top-0 z-40 bg-slate-950 text-white shadow-xl">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-40 bg-slate-950 text-white shadow-xl">
+<div class="max-w-7xl mx-auto px-4 py-4">
 
-    <div class="font-black text-2xl tracking-widest">
-      KICKS<span class="text-indigo-400">4U</span>
-    </div>
+<div class="flex items-center gap-3">
 
-    <div class="flex-1">
-      <input
-        id="search"
-        oninput="render()"
-        placeholder="Search footwear..."
-        class="w-full rounded-full px-5 py-3 text-slate-900 outline-none"
-      >
-    </div>
-
-    <button
-      onclick="openOrders()"
-      class="bg-indigo-600 px-4 py-2 rounded-xl font-bold">
-      My Orders
-    </button>
-
-  </div>
-</header>
-
-<div class="bg-white border-b sticky top-[72px] z-30">
-  <div
-    id="categories"
-    class="max-w-7xl mx-auto px-4 py-3 flex gap-3 overflow-x-auto hide-scroll">
-  </div>
+<div class="font-black text-xl md:text-3xl tracking-widest whitespace-nowrap">
+KICKS<span class="text-indigo-400">4U</span>
 </div>
 
+<div class="flex-1">
+<input
+id="search"
+oninput="renderProducts()"
+placeholder="Search shoes, sneakers, slippers..."
+class="w-full rounded-full px-4 md:px-6 py-2.5 md:py-3 text-slate-900 outline-none">
+</div>
+
+<button
+onclick="openOrders()"
+class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 rounded-xl font-bold whitespace-nowrap">
+My Orders
+</button>
+
+</div>
+
+</div>
+</nav>
+
+
+<!-- CATEGORY BAR -->
+<div class="sticky top-[68px] z-30 bg-white border-b shadow-sm">
+<div
+id="categoryBar"
+class="max-w-7xl mx-auto px-4 py-3 flex gap-2 overflow-x-auto hide-scroll">
+</div>
+</div>
+
+
+<!-- HERO -->
 <section class="max-w-7xl mx-auto px-4 pt-8">
 
-  <div class="rounded-3xl bg-slate-950 text-white p-8 md:p-12">
-    <p class="text-indigo-400 font-bold uppercase tracking-widest">
-      KICKS4U
-    </p>
+<div class="rounded-[30px] bg-slate-950 text-white overflow-hidden">
 
-    <h1 class="text-4xl md:text-6xl font-black mt-3">
-      Find your next pair.
-    </h1>
+<div class="p-7 md:p-12">
 
-    <p class="text-slate-300 mt-4 max-w-xl">
-      Premium footwear, secure online payments and order tracking.
-      COD is not available.
-    </p>
+<p class="text-indigo-400 font-black tracking-[.25em] text-sm">
+KICKS4U
+</p>
 
-    <div class="flex gap-3 mt-7 flex-wrap">
-      <span class="bg-white/10 px-4 py-2 rounded-full">
-        🔒 Secure Online Payment
-      </span>
+<h1 class="text-4xl md:text-6xl font-black mt-3 leading-tight">
+Your next pair<br>
+starts here.
+</h1>
 
-      <span class="bg-white/10 px-4 py-2 rounded-full">
-        🚚 Delivery within 14 days
-      </span>
+<p class="text-slate-300 max-w-xl mt-5">
+Premium footwear with detailed product information,
+secure online checkout and order tracking.
+</p>
 
-      <span class="bg-white/10 px-4 py-2 rounded-full">
-        ✕ No Replacement
-      </span>
-    </div>
-  </div>
+<div class="flex flex-wrap gap-3 mt-7">
+
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
+🔒 Secure Online Payment
+</span>
+
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
+🚚 Delivery Within 14 Days
+</span>
+
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
+✕ No Replacement
+</span>
+
+<span class="bg-white/10 px-4 py-2 rounded-full text-sm">
+💬 Online Support
+</span>
+
+</div>
+
+</div>
+</div>
 
 </section>
 
+
+<!-- STORE -->
 <main class="max-w-7xl mx-auto px-4 py-10">
 
-  <div
-    id="grid"
-    class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-  </div>
+<div class="flex justify-between items-center mb-6">
+<div>
+<h2 class="text-2xl md:text-3xl font-black">
+Featured Footwear
+</h2>
+
+<p id="resultCount" class="text-sm text-slate-500 mt-1"></p>
+</div>
+</div>
+
+<div
+id="productGrid"
+class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+</div>
+
+<div
+id="empty"
+class="hidden text-center py-20">
+<div class="text-5xl">🔎</div>
+<h3 class="font-black text-xl mt-4">
+No footwear found
+</h3>
+<p class="text-slate-500 mt-2">
+Try another search.
+</p>
+</div>
 
 </main>
 
+
+<!-- FOOTER -->
+<footer class="bg-slate-950 text-slate-400 mt-10">
+<div class="max-w-7xl mx-auto px-4 py-10">
+
+<div class="grid md:grid-cols-3 gap-8">
+
+<div>
+<h3 class="text-white font-black text-xl">
+KICKS4U
+</h3>
+<p class="mt-3 text-sm">
+Premium footwear store.
+</p>
+</div>
+
+<div>
+<h4 class="text-white font-bold">
+Store Policy
+</h4>
+
+<p class="text-sm mt-3">
+Online payment only<br>
+Delivery within 14 days<br>
+No replacement
+</p>
+</div>
+
+<div>
+<h4 class="text-white font-bold">
+Customer Support
+</h4>
+
+<p class="text-sm mt-3">
+Use the support chat on this website.
+</p>
+
+<a
+href="https://wa.me/916260155319"
+target="_blank"
+class="inline-block mt-3 bg-green-600 text-white px-4 py-2 rounded-xl font-bold">
+WhatsApp Support
+</a>
+
+</div>
+
+</div>
+
+<div class="border-t border-slate-800 mt-8 pt-6 text-center text-sm">
+© 2026 KICKS4U. All rights reserved.
+</div>
+
+</div>
+</footer>
+
+
 <!-- PRODUCT MODAL -->
-
 <div
-  id="productModal"
-  class="hidden fixed inset-0 bg-black/70 z-50 p-4 overflow-y-auto">
+id="productModal"
+class="hidden fixed inset-0 z-50 modal-bg p-4 overflow-y-auto">
 
-  <div class="max-w-5xl mx-auto bg-white rounded-3xl overflow-hidden">
+<div class="max-w-5xl mx-auto bg-white rounded-3xl overflow-hidden shadow-2xl">
 
-    <div class="grid md:grid-cols-2">
+<div class="grid md:grid-cols-2">
 
-      <div class="p-5">
+<!-- GALLERY -->
+<div class="p-5 md:p-7">
 
-        <div class="bg-slate-100 rounded-2xl overflow-hidden">
-          <img
-            id="mainImage"
-            class="w-full aspect-square object-cover zoomable"
-            onclick="zoomImage()">
-        </div>
+<div class="relative bg-slate-100 rounded-2xl overflow-hidden">
 
-        <div id="thumbs" class="flex gap-2 mt-3 overflow-x-auto"></div>
-
-      </div>
-
-      <div class="p-7">
-
-        <button
-          onclick="closeProduct()"
-          class="float-right text-2xl">
-          ×
-        </button>
-
-        <span
-          id="modalCategory"
-          class="text-xs font-black uppercase text-indigo-600">
-        </span>
-
-        <h2
-          id="modalName"
-          class="text-3xl font-black mt-2">
-        </h2>
-
-        <p
-          id="modalPrice"
-          class="text-3xl font-black text-indigo-600 mt-4">
-        </p>
-
-        <p
-          id="modalDescription"
-          class="text-slate-600 mt-5">
-        </p>
-
-        <div class="mt-6 p-5 bg-slate-50 rounded-2xl">
-
-          <p class="font-bold">Product Information</p>
-
-          <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
-            <div>
-              <span class="text-slate-500">Material</span>
-              <p id="modalMaterial" class="font-bold"></p>
-            </div>
-
-            <div>
-              <span class="text-slate-500">Delivery</span>
-              <p class="font-bold">Within 14 days</p>
-            </div>
-
-            <div>
-              <span class="text-slate-500">Payment</span>
-              <p class="font-bold">Online only</p>
-            </div>
-
-            <div>
-              <span class="text-slate-500">Replacement</span>
-              <p class="font-bold">Not available</p>
-            </div>
-          </div>
-
-        </div>
-
-        <button
-          id="buyButton"
-          class="w-full mt-7 py-4 rounded-2xl bg-slate-950 text-white font-black hover:bg-indigo-600 transition">
-          BUY NOW — ONLINE PAYMENT
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- CHECKOUT -->
-
-<div
-  id="checkout"
-  class="hidden fixed inset-0 bg-black/70 z-50 p-4 overflow-y-auto">
-
-  <div class="max-w-lg mx-auto bg-white rounded-3xl p-7">
-
-    <button onclick="closeCheckout()" class="float-right text-2xl">
-      ×
-    </button>
-
-    <h2 class="text-3xl font-black">
-      Secure Checkout
-    </h2>
-
-    <p class="text-sm text-slate-500 mt-2">
-      COD is disabled. Payment is processed securely online.
-    </p>
-
-    <form id="checkoutForm" class="space-y-4 mt-7">
-
-      <input
-        id="name"
-        required
-        placeholder="Full Name"
-        class="w-full border rounded-xl p-3">
-
-      <input
-        id="phone"
-        required
-        pattern="[0-9]{10}"
-        placeholder="10-digit WhatsApp Number"
-        class="w-full border rounded-xl p-3">
-
-      <div>
-
-        <button
-          type="button"
-          onclick="detectLocation()"
-          class="text-sm font-bold text-indigo-600 mb-2">
-          📍 Detect Google Maps Location
-        </button>
-
-        <textarea
-          id="address"
-          required
-          rows="4"
-          placeholder="Complete delivery address"
-          class="w-full border rounded-xl p-3"></textarea>
-
-      </div>
-
-      <div class="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm">
-        <b>Before payment:</b>
-
-        <ul class="mt-2 space-y-1">
-          <li>✓ Online payment only</li>
-          <li>✓ Delivery within 14 days</li>
-          <li>✓ No replacement</li>
-        </ul>
-      </div>
-
-      <button
-        class="w-full bg-indigo-600 text-white py-4 rounded-xl font-black">
-        CONTINUE TO PAYMENT
-      </button>
-
-    </form>
-
-  </div>
-</div>
-
-<!-- ORDERS -->
-
-<div
-  id="orders"
-  class="hidden fixed inset-0 bg-black/70 z-50 p-4 overflow-y-auto">
-
-  <div class="max-w-lg mx-auto bg-white rounded-3xl p-7">
-
-    <button onclick="closeOrders()" class="float-right text-2xl">
-      ×
-    </button>
-
-    <h2 class="text-3xl font-black">
-      My Orders
-    </h2>
-
-    <div class="flex gap-2 mt-6">
-
-      <input
-        id="orderPhone"
-        placeholder="Phone number"
-        class="flex-1 border rounded-xl p-3">
-
-      <button
-        onclick="loadOrders()"
-        class="bg-slate-950 text-white px-4 rounded-xl font-bold">
-        Search
-      </button>
-
-    </div>
-
-    <div id="orderList" class="mt-6 space-y-4"></div>
-
-  </div>
-</div>
-
-<!-- IMAGE ZOOM -->
-
-<div
-  id="viewer"
-  onclick="this.classList.add('hidden')"
-  class="hidden fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4">
-
-  <img
-    id="zoomed"
-    class="max-h-[90vh] max-w-[95vw] object-contain">
-</div>
-
-<!-- CHAT -->
+<img
+id="mainProductImage"
+onclick="zoomImage()"
+class="w-full aspect-square object-cover cursor-zoom-in">
 
 <button
-  onclick="toggleChat()"
-  class="fixed bottom-5 right-5 z-40 bg-indigo-600 text-white h-14 w-14 rounded-full shadow-2xl text-2xl">
-  💬
+onclick="previousImage()"
+class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 h-10 w-10 rounded-full font-black">
+‹
 </button>
 
-<div
-  id="chat"
-  class="hidden fixed bottom-24 right-5 z-40 w-[340px] max-w-[90vw] bg-white rounded-3xl chat-window overflow-hidden">
+<button
+onclick="nextImage()"
+class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 h-10 w-10 rounded-full font-black">
+›
+</button>
 
-  <div class="bg-slate-950 text-white p-4 font-bold">
-    KICKS4U Support
-    <div class="text-xs text-slate-400 font-normal">
-      Automated support
-    </div>
-  </div>
-
-  <div
-    id="messages"
-    class="h-80 overflow-y-auto p-4 space-y-3">
-    <div class="bg-slate-100 rounded-xl p-3 text-sm">
-      Hi 👋 I can help with payments, delivery, orders and products.
-    </div>
-  </div>
-
-  <form
-    onsubmit="sendChat(event)"
-    class="p-3 border-t flex gap-2">
-
-    <input
-      id="chatInput"
-      required
-      placeholder="Type your question..."
-      class="flex-1 border rounded-xl px-3">
-
-    <button
-      class="bg-indigo-600 text-white px-4 rounded-xl">
-      ➤
-    </button>
-
-  </form>
 </div>
 
+<div
+id="thumbnails"
+class="flex gap-2 mt-3 overflow-x-auto hide-scroll">
+</div>
+
+<p class="text-xs text-slate-400 mt-3">
+Click the main image to zoom.
+</p>
+
+</div>
+
+
+<!-- INFO -->
+<div class="p-6 md:p-8">
+
+<div class="flex justify-between gap-4">
+
+<div>
+<p
+id="modalCategory"
+class="text-xs text-indigo-600 font-black uppercase tracking-wider">
+</p>
+
+<h2
+id="modalName"
+class="text-3xl font-black mt-2">
+</h2>
+</div>
+
+<button
+onclick="closeProduct()"
+class="h-9 w-9 rounded-full bg-slate-100 text-xl">
+×
+</button>
+
+</div>
+
+<p
+id="modalPrice"
+class="text-3xl font-black text-indigo-600 mt-5">
+</p>
+
+<p
+id="modalDescription"
+class="text-slate-600 mt-4 leading-relaxed">
+</p>
+
+
+<div class="bg-slate-50 rounded-2xl p-5 mt-6">
+
+<h3 class="font-black">
+Product Information
+</h3>
+
+<div class="grid grid-cols-2 gap-5 mt-5 text-sm">
+
+<div>
+<p class="text-slate-400">Material</p>
+<p id="modalMaterial" class="font-bold mt-1"></p>
+</div>
+
+<div>
+<p class="text-slate-400">Use</p>
+<p id="modalUse" class="font-bold mt-1"></p>
+</div>
+
+<div>
+<p class="text-slate-400">Construction</p>
+<p id="modalConstruction" class="font-bold mt-1"></p>
+</div>
+
+<div>
+<p class="text-slate-400">Care</p>
+<p id="modalCare" class="font-bold mt-1"></p>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="mt-5 border rounded-2xl p-4">
+
+<p class="font-bold">
+Delivery & Policy
+</p>
+
+<p class="text-sm text-slate-600 mt-2">
+🚚 Delivery within 14 days of successful payment.
+</p>
+
+<p class="text-sm text-slate-600 mt-1">
+💳 COD is not available.
+</p>
+
+<p class="text-sm text-slate-600 mt-1">
+✕ No replacement.
+</p>
+
+</div>
+
+
+<button
+id="buyNowButton"
+class="w-full mt-6 bg-slate-950 hover:bg-indigo-600 text-white py-4 rounded-2xl font-black transition">
+BUY NOW
+</button>
+
+</div>
+
+</div>
+</div>
+</div>
+
+
+<!-- ZOOM -->
+<div
+id="zoomModal"
+onclick="closeZoom()"
+class="hidden fixed inset-0 z-[70] bg-black/95 flex items-center justify-center p-4">
+
+<img
+id="zoomImage"
+class="max-w-full max-h-full object-contain">
+
+</div>
+
+
+<!-- CHECKOUT -->
+<div
+id="checkoutModal"
+class="hidden fixed inset-0 z-[60] modal-bg p-4 overflow-y-auto">
+
+<div class="max-w-lg mx-auto bg-white rounded-3xl p-6 md:p-8">
+
+<div class="flex justify-between items-center">
+
+<h2 class="text-3xl font-black">
+Checkout
+</h2>
+
+<button
+onclick="closeCheckout()"
+class="h-9 w-9 bg-slate-100 rounded-full text-xl">
+×
+</button>
+
+</div>
+
+
+<div
+id="checkoutProduct"
+class="bg-slate-50 rounded-2xl p-4 mt-5">
+</div>
+
+
+<form
+id="checkoutForm"
+class="space-y-4 mt-6">
+
+<div>
+<label class="text-sm font-bold">
+Full Name
+</label>
+
+<input
+id="customerName"
+required
+class="w-full border rounded-xl p-3 mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
+placeholder="Your full name">
+</div>
+
+
+<div>
+<label class="text-sm font-bold">
+WhatsApp Number
+</label>
+
+<input
+id="customerPhone"
+required
+inputmode="numeric"
+pattern="[0-9]{10}"
+maxlength="10"
+class="w-full border rounded-xl p-3 mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
+placeholder="10-digit number">
+</div>
+
+
+<div>
+
+<div class="flex justify-between items-center">
+
+<label class="text-sm font-bold">
+Delivery Address
+</label>
+
+<button
+type="button"
+onclick="detectLocation()"
+class="text-indigo-600 text-xs font-black">
+📍 Detect Location
+</button>
+
+</div>
+
+<textarea
+id="customerAddress"
+required
+rows="4"
+class="w-full border rounded-xl p-3 mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
+placeholder="House/Flat, Street, City, State, PIN"></textarea>
+
+<p
+id="locationStatus"
+class="text-xs text-slate-500 mt-1">
+</p>
+
+</div>
+
+
+<div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm">
+
+<p class="font-black">
+Important
+</p>
+
+<ul class="mt-2 space-y-1 text-slate-700">
+<li>✓ COD is disabled</li>
+<li>✓ Online payment only</li>
+<li>✓ Delivery within 14 days</li>
+<li>✓ No replacement</li>
+</ul>
+
+</div>
+
+
+<button
+type="submit"
+class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black">
+CONTINUE TO PAYMENT
+</button>
+
+</form>
+
+</div>
+</div>
+
+
+<!-- MY ORDERS -->
+<div
+id="ordersModal"
+class="hidden fixed inset-0 z-[60] modal-bg p-4 overflow-y-auto">
+
+<div class="max-w-lg mx-auto bg-white rounded-3xl p-6 md:p-8">
+
+<div class="flex justify-between">
+
+<h2 class="text-3xl font-black">
+My Orders
+</h2>
+
+<button
+onclick="closeOrders()"
+class="h-9 w-9 bg-slate-100 rounded-full text-xl">
+×
+</button>
+
+</div>
+
+
+<p class="text-sm text-slate-500 mt-2">
+Enter the same WhatsApp number used during checkout.
+</p>
+
+
+<div class="flex gap-2 mt-6">
+
+<input
+id="orderPhone"
+maxlength="10"
+inputmode="numeric"
+placeholder="10-digit number"
+class="flex-1 border rounded-xl p-3">
+
+<button
+onclick="findOrders()"
+class="bg-slate-950 text-white px-5 rounded-xl font-bold">
+Search
+</button>
+
+</div>
+
+
+<div
+id="ordersList"
+class="mt-6 space-y-4">
+</div>
+
+</div>
+</div>
+
+
+<!-- CHAT BUTTON -->
+<button
+onclick="toggleChat()"
+class="fixed bottom-5 right-5 z-40 h-14 w-14 rounded-full bg-indigo-600 text-white text-2xl shadow-2xl">
+💬
+</button>
+
+
+<!-- CHAT WINDOW -->
+<div
+id="chatWindow"
+class="hidden fixed bottom-24 right-5 z-40 w-[350px] max-w-[calc(100vw-30px)] bg-white rounded-3xl overflow-hidden chat-shadow">
+
+<div class="bg-slate-950 text-white p-4">
+
+<div class="font-black">
+KICKS4U Support
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+Automated assistant
+</div>
+
+</div>
+
+
+<div
+id="chatMessages"
+class="h-80 overflow-y-auto p-4 space-y-3">
+
+<div class="bg-slate-100 rounded-xl p-3 text-sm">
+Hi 👋 I'm KICKS4U Support. Ask me about delivery, payment, orders or replacement policy.
+</div>
+
+</div>
+
+
+<form
+onsubmit="sendChat(event)"
+class="border-t p-3 flex gap-2">
+
+<input
+id="chatInput"
+required
+class="flex-1 border rounded-xl px-3 outline-none"
+placeholder="Type your question...">
+
+<button
+class="bg-indigo-600 text-white px-4 rounded-xl">
+➤
+</button>
+
+</form>
+
+</div>
+
+
 <script>
-let products = [];
-let activeCategory = "All";
-let selectedProduct = null;
 
-async function init() {
-  products = await fetch("/api/products").then(r => r.json());
+/* =====================================================
+   KICKS4U SINGLE-FILE STORE
+   ===================================================== */
 
-  const cats = ["All", ...new Set(products.map(p => p.category))];
 
-  document.getElementById("categories").innerHTML =
-    cats.map(c => `
-      <button
-        onclick="setCategory('${c}')"
-        class="category px-5 py-2 rounded-full whitespace-nowrap font-bold
-        ${c === "All" ? "bg-slate-950 text-white" : "bg-slate-100"}">
-        ${c}
-      </button>
-    `).join("");
+/* PRODUCTS
+   IMPORTANT:
+   Each product has its own fixed gallery.
+   Replace image URLs with your own product photos.
+*/
 
-  render();
+const products = [
+
+{
+id:"k4u-001",
+category:"Sneakers",
+name:"Urban Street X1",
+price:1499,
+description:"Modern everyday sneaker with lightweight cushioning and breathable construction.",
+material:"Engineered mesh + synthetic leather",
+use:"Daily / Casual",
+construction:"Cushioned EVA sole",
+care:"Keep dry and clean with a soft brush",
+images:[
+"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&q=90",
+"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&q=90",
+"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&q=90",
+"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&q=90",
+"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-002",
+category:"Running",
+name:"Velocity Runner Pro",
+price:1899,
+description:"Lightweight running shoe designed for daily training and active use.",
+material:"Breathable mesh",
+use:"Running / Training",
+construction:"EVA cushioning + rubber outsole",
+care:"Air dry after cleaning",
+images:[
+"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1000&q=90",
+"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1000&q=90",
+"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1000&q=90",
+"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1000&q=90",
+"https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-003",
+category:"Formal",
+name:"Executive Derby",
+price:2199,
+description:"Classic formal footwear with a clean silhouette for office and occasions.",
+material:"Synthetic leather",
+use:"Office / Formal",
+construction:"Cushioned insole + rubber outsole",
+care:"Wipe with a soft cloth",
+images:[
+"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1000&q=90",
+"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1000&q=90",
+"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1000&q=90",
+"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1000&q=90",
+"https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-004",
+category:"Boots",
+name:"Urban Trek Boots",
+price:2499,
+description:"High-ankle everyday boots with durable outsole and structured construction.",
+material:"Synthetic leather",
+use:"Casual / Outdoor",
+construction:"Rubber outsole",
+care:"Clean and store away from moisture",
+images:[
+"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1000&q=90",
+"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1000&q=90",
+"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1000&q=90",
+"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1000&q=90",
+"https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-005",
+category:"Sandals",
+name:"Comfort Cross Sandal",
+price:699,
+description:"Lightweight everyday sandal with comfortable footbed.",
+material:"EVA + synthetic straps",
+use:"Daily / Casual",
+construction:"Flexible EVA footbed",
+care:"Wash gently and air dry",
+images:[
+"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1000&q=90",
+"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1000&q=90",
+"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1000&q=90",
+"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1000&q=90",
+"https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-006",
+category:"Slippers",
+name:"Cloud Comfort Slide",
+price:499,
+description:"Soft lightweight slide designed for relaxed everyday wear.",
+material:"EVA foam",
+use:"Home / Casual",
+construction:"Lightweight EVA sole",
+care:"Clean with mild soap and water",
+images:[
+"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1000&q=90",
+"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1000&q=90",
+"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1000&q=90",
+"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1000&q=90",
+"https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-007",
+category:"Casual",
+name:"Daily Canvas Classic",
+price:999,
+description:"Minimal casual footwear designed for everyday outfits.",
+material:"Canvas upper",
+use:"Daily / Casual",
+construction:"Rubber outsole",
+care:"Spot clean only",
+images:[
+"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1000&q=90",
+"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1000&q=90",
+"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1000&q=90",
+"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1000&q=90",
+"https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=1000&q=90"
+]
+},
+
+{
+id:"k4u-008",
+category:"Slippers",
+name:"Everyday Comfort Chappal",
+price:399,
+description:"Simple lightweight footwear for everyday use.",
+material:"Rubber",
+use:"Daily Wear",
+construction:"Flexible rubber sole",
+care:"Wash and air dry",
+images:[
+"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1000&q=90",
+"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1000&q=90",
+"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1000&q=90",
+"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1000&q=90",
+"https://images.unsplash.com/photo-1562183241-b937e95585b6?w=1000&q=90"
+]
 }
 
-function setCategory(category) {
-  activeCategory = category;
+];
 
-  document.querySelectorAll(".category").forEach(btn => {
-    btn.classList.remove("bg-slate-950", "text-white");
-    btn.classList.add("bg-slate-100");
-  });
 
-  event.target.classList.remove("bg-slate-100");
-  event.target.classList.add("bg-slate-950", "text-white");
+let activeCategory="All";
+let selectedProduct=null;
+let imageIndex=0;
 
-  render();
+
+/* CATEGORY */
+
+function createCategories(){
+
+const categories=[
+"All",
+"Sneakers",
+"Running",
+"Formal",
+"Boots",
+"Sandals",
+"Slippers",
+"Casual"
+];
+
+document.getElementById("categoryBar").innerHTML=
+
+categories.map(category=>`
+
+<button
+onclick="setCategory('${category}')"
+data-category="${category}"
+class="category-btn whitespace-nowrap px-5 py-2 rounded-full font-bold text-sm
+${category==="All"
+?"bg-slate-950 text-white"
+:"bg-slate-100 text-slate-700"}">
+
+${category==="All"?"All Footwear":category}
+
+</button>
+
+`).join("");
+
 }
 
-function render() {
-  const search = document
-    .getElementById("search")
-    .value
-    .toLowerCase();
 
-  const list = products.filter(p =>
-    (activeCategory === "All" || p.category === activeCategory) &&
-    (
-      p.name.toLowerCase().includes(search) ||
-      p.category.toLowerCase().includes(search)
-    )
-  );
+/* CATEGORY FILTER */
 
-  document.getElementById("grid").innerHTML = list.map(p => `
-    <article
-      class="product-card bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition">
+function setCategory(category){
 
-      <div class="relative overflow-hidden">
-        <img
-          src="${p.images[0]}"
-          class="product-img w-full aspect-square object-cover"
-          alt="${p.name}">
+activeCategory=category;
 
-        <span
-          class="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full text-xs font-black">
-          ${p.category}
-        </span>
-      </div>
+document.querySelectorAll(".category-btn").forEach(btn=>{
 
-      <div class="p-5">
+const active=btn.dataset.category===category;
 
-        <h3 class="font-black text-xl">
-          ${p.name}
-        </h3>
+btn.classList.toggle("bg-slate-950",active);
+btn.classList.toggle("text-white",active);
 
-        <p class="text-slate-500 text-sm mt-2 line-clamp-2">
-          ${p.description}
-        </p>
+btn.classList.toggle("bg-slate-100",!active);
+btn.classList.toggle("text-slate-700",!active);
 
-        <div class="flex items-center justify-between mt-5">
-          <strong class="text-2xl">
-            ₹${p.price}
-          </strong>
+});
 
-          <button
-            onclick="openProduct('${p.id}')"
-            class="bg-slate-950 text-white px-5 py-3 rounded-xl font-bold">
-            View
-          </button>
-        </div>
+renderProducts();
 
-      </div>
-
-    </article>
-  `).join("");
 }
 
-function openProduct(id) {
-  selectedProduct = products.find(p => p.id === id);
 
-  document.getElementById("modalCategory").textContent =
-    selectedProduct.category;
+/* RENDER */
 
-  document.getElementById("modalName").textContent =
-    selectedProduct.name;
+function renderProducts(){
 
-  document.getElementById("modalPrice").textContent =
-    `₹${selectedProduct.price}`;
+const term=
+document.getElementById("search").value
+.toLowerCase()
+.trim();
 
-  document.getElementById("modalDescription").textContent =
-    selectedProduct.description;
+const list=products.filter(product=>{
 
-  document.getElementById("modalMaterial").textContent =
-    selectedProduct.material;
+const categoryMatch=
+activeCategory==="All" ||
+product.category===activeCategory;
 
-  document.getElementById("mainImage").src =
-    selectedProduct.images[0];
+const searchMatch=
+!term ||
+product.name.toLowerCase().includes(term) ||
+product.category.toLowerCase().includes(term) ||
+product.description.toLowerCase().includes(term);
 
-  document.getElementById("thumbs").innerHTML =
-    selectedProduct.images.map((img, i) => `
-      <button onclick="changeImage('${img}')">
-        <img
-          src="${img}"
-          class="w-16 h-16 object-cover rounded-xl border">
-      </button>
-    `).join("");
+return categoryMatch && searchMatch;
 
-  document.getElementById("buyButton").onclick = () => {
-    closeProduct();
-    openCheckout();
-  };
+});
 
-  document.getElementById("productModal")
-    .classList.remove("hidden");
+
+document.getElementById("resultCount").textContent=
+`${list.length} product${list.length!==1?"s":""}`;
+
+
+document.getElementById("empty")
+.classList.toggle("hidden",list.length!==0);
+
+
+document.getElementById("productGrid").innerHTML=
+list.map(product=>`
+
+<article class="product-card bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
+
+<div class="relative overflow-hidden bg-slate-100">
+
+<img
+src="${product.images[0]}"
+alt="${product.name}"
+loading="lazy"
+class="w-full aspect-square object-cover">
+
+<span
+class="absolute top-4 left-4 bg-white/95 px-3 py-1 rounded-full text-xs font-black uppercase">
+
+${product.category}
+
+</span>
+
+</div>
+
+
+<div class="p-5">
+
+<h3 class="text-xl font-black">
+${product.name}
+</h3>
+
+<p class="text-sm text-slate-500 mt-2 line-clamp-2">
+${product.description}
+</p>
+
+
+<div class="flex items-center justify-between mt-5">
+
+<div>
+
+<p class="text-2xl font-black">
+₹${product.price.toLocaleString("en-IN")}
+</p>
+
+<p class="text-xs text-green-600 font-bold mt-1">
+Online payment only
+</p>
+
+</div>
+
+
+<button
+onclick="openProduct('${product.id}')"
+class="bg-slate-950 text-white px-5 py-3 rounded-xl font-bold hover:bg-indigo-600">
+
+View
+
+</button>
+
+</div>
+
+</div>
+
+</article>
+
+`).join("");
+
 }
 
-function changeImage(src) {
-  document.getElementById("mainImage").src = src;
+
+/* PRODUCT MODAL */
+
+function openProduct(id){
+
+selectedProduct=
+products.find(product=>product.id===id);
+
+imageIndex=0;
+
+document.getElementById("modalCategory").textContent=
+selectedProduct.category;
+
+document.getElementById("modalName").textContent=
+selectedProduct.name;
+
+document.getElementById("modalPrice").textContent=
+"₹"+selectedProduct.price.toLocaleString("en-IN");
+
+document.getElementById("modalDescription").textContent=
+selectedProduct.description;
+
+document.getElementById("modalMaterial").textContent=
+selectedProduct.material;
+
+document.getElementById("modalUse").textContent=
+selectedProduct.use;
+
+document.getElementById("modalConstruction").textContent=
+selectedProduct.construction;
+
+document.getElementById("modalCare").textContent=
+selectedProduct.care;
+
+updateGallery();
+
+document.getElementById("productModal")
+.classList.remove("hidden");
+
+document.body.classList.add("no-scroll");
+
 }
 
-function closeProduct() {
-  document.getElementById("productModal")
-    .classList.add("hidden");
+
+/* GALLERY */
+
+function updateGallery(){
+
+document.getElementById("mainProductImage").src=
+selectedProduct.images[imageIndex];
+
+document.getElementById("thumbnails").innerHTML=
+selectedProduct.images.map((image,index)=>`
+
+<button onclick="selectImage(${index})">
+
+<img
+src="${image}"
+class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-xl
+${index===imageIndex?"thumb-active":""}">
+
+</button>
+
+`).join("");
+
 }
 
-function zoomImage() {
-  document.getElementById("zoomed").src =
-    document.getElementById("mainImage").src;
 
-  document.getElementById("viewer")
-    .classList.remove("hidden");
+function selectImage(index){
+
+imageIndex=index;
+updateGallery();
+
 }
 
-function openCheckout() {
-  document.getElementById("checkout")
-    .classList.remove("hidden");
+
+function nextImage(){
+
+imageIndex=
+(imageIndex+1)%selectedProduct.images.length;
+
+updateGallery();
+
 }
 
-function closeCheckout() {
-  document.getElementById("checkout")
-    .classList.add("hidden");
+
+function previousImage(){
+
+imageIndex=
+(imageIndex-1+selectedProduct.images.length)
+%selectedProduct.images.length;
+
+updateGallery();
+
 }
+
+
+/* CLOSE PRODUCT */
+
+function closeProduct(){
+
+document.getElementById("productModal")
+.classList.add("hidden");
+
+document.body.classList.remove("no-scroll");
+
+}
+
+
+/* ZOOM */
+
+function zoomImage(){
+
+document.getElementById("zoomImage").src=
+selectedProduct.images[imageIndex];
+
+document.getElementById("zoomModal")
+.classList.remove("hidden");
+
+}
+
+
+function closeZoom(){
+
+document.getElementById("zoomModal")
+.classList.add("hidden");
+
+}
+
+
+/* CHECKOUT */
+
+document.getElementById("buyNowButton")
+.addEventListener("click",()=>{
+
+if(!selectedProduct)return;
+
+closeProduct();
+
+document.getElementById("checkoutProduct").innerHTML=`
+
+<div class="flex items-center gap-4">
+
+<img
+src="${selectedProduct.images[0]}"
+class="w-20 h-20 rounded-xl object-cover">
+
+<div>
+
+<p class="font-black">
+${selectedProduct.name}
+</p>
+
+<p class="text-xl font-black text-indigo-600 mt-1">
+₹${selectedProduct.price.toLocaleString("en-IN")}
+</p>
+
+</div>
+
+</div>
+
+`;
+
+document.getElementById("checkoutModal")
+.classList.remove("hidden");
+
+document.body.classList.add("no-scroll");
+
+});
+
+
+function closeCheckout(){
+
+document.getElementById("checkoutModal")
+.classList.add("hidden");
+
+document.body.classList.remove("no-scroll");
+
+}
+
+
+/* LOCATION */
+
+function detectLocation(){
+
+const status=
+document.getElementById("locationStatus");
+
+if(!navigator.geolocation){
+
+status.textContent=
+"Location is not supported by this browser.";
+
+return;
+
+}
+
+status.textContent=
+"Requesting location permission...";
+
+
+navigator.geolocation.getCurrentPosition(
+
+position=>{
+
+const lat=position.coords.latitude;
+const lng=position.coords.longitude;
+
+const maps=
+`https://www.google.com/maps?q=${lat},${lng}`;
+
+document.getElementById("customerAddress").value=
+`Google Maps Location:
+${maps}
+
+Please add House/Flat, Street, City, State and PIN.`;
+
+status.textContent=
+"Location detected. Please complete your address.";
+
+},
+
+()=>{
+
+status.textContent=
+"Location permission denied. Please enter address manually.";
+
+}
+
+);
+
+}
+
+
+/* CHECKOUT */
 
 document.getElementById("checkoutForm")
-  .addEventListener("submit", async e => {
+.addEventListener("submit",function(event){
 
-    e.preventDefault();
+event.preventDefault();
 
-    const name =
-      document.getElementById("name").value.trim();
+const name=
+document.getElementById("customerName").value.trim();
 
-    const phone =
-      document.getElementById("phone").value.trim();
+const phone=
+document.getElementById("customerPhone").value.trim();
 
-    const address =
-      document.getElementById("address").value.trim();
+const address=
+document.getElementById("customerAddress").value.trim();
 
-    const response = await fetch("/api/payment/order", {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        productId:selectedProduct.id,
-        name,
-        phone,
-        address
-      })
-    });
 
-    const data = await response.json();
+if(!/^[0-9]{10}$/.test(phone)){
 
-    if (!response.ok) {
-      alert(data.error || "Unable to start payment");
-      return;
-    }
+alert("Please enter a valid 10-digit WhatsApp number.");
 
-    const options = {
+return;
 
-      key:data.key,
-
-      amount:data.amount * 100,
-
-      currency:"INR",
-
-      name:"KICKS4U",
-
-      description:data.productName,
-
-      order_id:data.razorpayOrderId,
-
-      prefill:{
-        name,
-        contact:phone
-      },
-
-      theme:{
-        color:"#4f46e5"
-      },
-
-      handler:async function(payment) {
-
-        const verify = await fetch(
-          "/api/payment/verify",
-          {
-            method:"POST",
-            headers:{
-              "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-              ...payment,
-              orderId:data.orderId
-            })
-          }
-        );
-
-        const result = await verify.json();
-
-        if (!result.success) {
-          alert("Payment verification failed.");
-          return;
-        }
-
-        localStorage.setItem(
-          "lastOrder",
-          result.order.order_id
-        );
-
-        closeCheckout();
-
-        alert(
-          `Payment successful!\nOrder ID: ${result.order.order_id}`
-        );
-
-        window.open(
-          result.whatsapp,
-          "_blank"
-        );
-      }
-
-    };
-
-    const rzp = new Razorpay(options);
-
-    rzp.on("payment.failed", function() {
-      alert(
-        "Payment failed. Please retry with another available payment method."
-      );
-    });
-
-    rzp.open();
-  });
-
-function detectLocation() {
-
-  if (!navigator.geolocation) {
-    alert("Location is not supported by this browser.");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    position => {
-
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-
-      const maps =
-        `https://www.google.com/maps?q=${lat},${lng}`;
-
-      document.getElementById("address").value =
-        `Google Maps Location:\n${maps}\n\nPlease add house/flat/street details here.`;
-    },
-
-    () => {
-      alert("Location permission was denied. Please enter address manually.");
-    }
-  );
 }
 
-function openOrders() {
-  document.getElementById("orders")
-    .classList.remove("hidden");
+
+/*
+ IMPORTANT:
+ This single HTML file cannot securely process real payments.
+
+ Instead of pretending payment succeeded,
+ we prepare the order and open WhatsApp.
+
+ For real UPI/Card payment:
+ connect this form to your payment gateway backend.
+*/
+
+const orderId=
+"K4U-"+Date.now().toString().slice(-8);
+
+const order={
+
+id:orderId,
+
+productId:selectedProduct.id,
+
+product:selectedProduct.name,
+
+amount:selectedProduct.price,
+
+name,
+
+phone,
+
+address,
+
+payment:"ONLINE PAYMENT",
+
+status:"PAYMENT PENDING",
+
+delivery:"Within 14 days",
+
+replacement:"Not available",
+
+createdAt:new Date().toISOString()
+
+};
+
+
+/* Save locally so My Orders works in this single-file version */
+
+const orders=
+JSON.parse(localStorage.getItem("kicks4u_orders")||"[]");
+
+orders.unshift(order);
+
+localStorage.setItem(
+"kicks4u_orders",
+JSON.stringify(orders)
+);
+
+
+/* WhatsApp */
+
+const message=
+`Hello KICKS4U 👋
+
+I want to place an order.
+
+Order ID: ${orderId}
+
+Product: ${selectedProduct.name}
+
+Amount: ₹${selectedProduct.price}
+
+Name: ${name}
+
+Phone: ${phone}
+
+Address:
+${address}
+
+Payment: ONLINE PAYMENT
+
+Delivery: Within 14 days
+
+Replacement: Not available`;
+
+const whatsapp=
+"https://wa.me/916260155319?text="+
+encodeURIComponent(message);
+
+
+closeCheckout();
+
+alert(
+"Order created.\n\nOrder ID: "+orderId+
+"\n\nWhatsApp will open for order confirmation."
+);
+
+window.open(whatsapp,"_blank");
+
+});
+
+
+/* ORDERS */
+
+function openOrders(){
+
+document.getElementById("ordersModal")
+.classList.remove("hidden");
+
+document.body.classList.add("no-scroll");
+
 }
 
-function closeOrders() {
-  document.getElementById("orders")
-    .classList.add("hidden");
+
+function closeOrders(){
+
+document.getElementById("ordersModal")
+.classList.add("hidden");
+
+document.body.classList.remove("no-scroll");
+
 }
 
-async function loadOrders() {
 
-  const phone =
-    document.getElementById("orderPhone").value.trim();
+function findOrders(){
 
-  if (!/^[0-9]{10}$/.test(phone)) {
-    alert("Enter a valid 10-digit number.");
-    return;
-  }
+const phone=
+document.getElementById("orderPhone").value.trim();
 
-  const orders =
-    await fetch(`/api/orders/phone/${phone}`)
-      .then(r => r.json());
+if(!/^[0-9]{10}$/.test(phone)){
 
-  if (!orders.length) {
-    document.getElementById("orderList").innerHTML =
-      `<p class="text-slate-500">No orders found.</p>`;
-    return;
-  }
+alert("Enter a valid 10-digit number.");
 
-  document.getElementById("orderList").innerHTML =
-    orders.map(o => `
-      <div class="border rounded-2xl p-4">
+return;
 
-        <div class="flex justify-between">
-          <b>${o.product_name}</b>
-          <b>₹${o.amount}</b>
-        </div>
-
-        <p class="text-xs text-slate-500 mt-2">
-          ${o.order_id}
-        </p>
-
-        <div class="mt-4 space-y-2 text-sm">
-          <p>💳 Payment:
-            <b>${o.payment_status}</b>
-          </p>
-
-          <p>📦 Status:
-            <b>${o.order_status}</b>
-          </p>
-
-          <p>🚚 Delivery:
-            <b>Within 14 days</b>
-          </p>
-
-          <p>✕ Replacement:
-            <b>Not available</b>
-          </p>
-        </div>
-
-      </div>
-    `).join("");
 }
 
-function toggleChat() {
-  document.getElementById("chat")
-    .classList.toggle("hidden");
+const orders=
+JSON.parse(
+localStorage.getItem("kicks4u_orders")||"[]"
+);
+
+const userOrders=
+orders.filter(order=>order.phone===phone);
+
+
+if(!userOrders.length){
+
+document.getElementById("ordersList").innerHTML=`
+
+<div class="text-center py-10">
+
+<div class="text-4xl">📦</div>
+
+<p class="font-bold mt-3">
+No orders found.
+</p>
+
+</div>
+
+`;
+
+return;
+
 }
 
-async function sendChat(e) {
 
-  e.preventDefault();
+document.getElementById("ordersList").innerHTML=
 
-  const input =
-    document.getElementById("chatInput");
+userOrders.map(order=>`
 
-  const message = input.value.trim();
+<div class="border rounded-2xl p-4">
 
-  if (!message) return;
+<div class="flex justify-between gap-3">
 
-  addMessage(message, true);
+<div>
+<p class="font-black">
+${order.product}
+</p>
 
-  input.value = "";
+<p class="text-xs text-slate-400 mt-1">
+${order.id}
+</p>
+</div>
 
-  const result = await fetch("/api/support", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({message})
-  }).then(r => r.json());
+<p class="font-black">
+₹${order.amount.toLocaleString("en-IN")}
+</p>
 
-  addMessage(result.reply, false);
+</div>
+
+
+<div class="mt-4 space-y-2 text-sm">
+
+<p>
+💳 Payment:
+<b>${order.payment}</b>
+</p>
+
+<p>
+📦 Status:
+<b>${order.status}</b>
+</p>
+
+<p>
+🚚 Delivery:
+<b>${order.delivery}</b>
+</p>
+
+<p>
+✕ Replacement:
+<b>${order.replacement}</b>
+</p>
+
+</div>
+
+
+<div class="mt-4 bg-slate-50 rounded-xl p-3 text-xs">
+
+<b>Delivery tracking</b>
+
+<div class="flex justify-between mt-3 text-slate-400">
+
+<span>Order</span>
+<span>Payment</span>
+<span>Shipped</span>
+<span>Delivered</span>
+
+</div>
+
+<div class="h-1 bg-slate-200 rounded mt-2"></div>
+
+</div>
+
+</div>
+
+`).join("");
+
 }
 
-function addMessage(text, user) {
 
-  const box =
-    document.getElementById("messages");
+/* CHAT */
 
-  const div =
-    document.createElement("div");
+function toggleChat(){
 
-  div.className =
-    user
-      ? "bg-indigo-600 text-white rounded-xl p-3 text-sm ml-8"
-      : "bg-slate-100 rounded-xl p-3 text-sm mr-8";
+document.getElementById("chatWindow")
+.classList.toggle("hidden");
 
-  div.textContent = text;
-
-  box.appendChild(div);
-
-  box.scrollTop = box.scrollHeight;
 }
 
-init();
+
+function addChatMessage(text,user=false){
+
+const box=
+document.getElementById("chatMessages");
+
+const message=
+document.createElement("div");
+
+message.className=
+user
+?"bg-indigo-600 text-white rounded-xl p-3 text-sm ml-8"
+:"bg-slate-100 rounded-xl p-3 text-sm mr-8";
+
+message.textContent=text;
+
+box.appendChild(message);
+
+box.scrollTop=box.scrollHeight;
+
+}
+
+
+/* LOCAL AUTOMATED SUPPORT */
+
+function supportReply(message){
+
+const text=message.toLowerCase();
+
+
+if(
+text.includes("delivery")||
+text.includes("deliver")||
+text.includes("kab")
+){
+
+return "KICKS4U delivery promise is within 14 days after successful payment.";
+
+}
+
+
+if(
+text.includes("cod")||
+text.includes("cash")
+){
+
+return "COD is currently OFF. Orders require online payment.";
+
+}
+
+
+if(
+text.includes("replacement")||
+text.includes("replace")
+){
+
+return "KICKS4U currently does not offer replacement. Please check product details and size before ordering.";
+
+}
+
+
+if(
+text.includes("payment")||
+text.includes("upi")||
+text.includes("card")
+){
+
+return "Online payment is required. A proper payment gateway can provide UPI, cards and other enabled payment methods.";
+
+}
+
+
+if(
+text.includes("order")||
+text.includes("track")
+){
+
+return "Open My Orders and enter the same 10-digit WhatsApp number used during checkout.";
+
+}
+
+
+if(
+text.includes("address")||
+text.includes("location")
+){
+
+return "During checkout, tap Detect Location to generate a Google Maps location link, then complete your full delivery address.";
+
+}
+
+
+if(
+text.includes("hello")||
+text.includes("hi")||
+text.includes("hey")
+){
+
+return "Hi 👋 Welcome to KICKS4U. I can help with payment, delivery, orders, address and replacement policy.";
+
+}
+
+
+return "I can help with delivery, online payment, orders, address and replacement policy. For anything else, please contact KICKS4U support on WhatsApp.";
+
+}
+
+
+function sendChat(event){
+
+event.preventDefault();
+
+const input=
+document.getElementById("chatInput");
+
+const text=input.value.trim();
+
+if(!text)return;
+
+addChatMessage(text,true);
+
+input.value="";
+
+
+setTimeout(()=>{
+
+addChatMessage(
+supportReply(text),
+false
+);
+
+},400);
+
+}
+
+
+/* ESCAPE */
+
+document.addEventListener("keydown",event=>{
+
+if(event.key==="Escape"){
+
+closeProduct();
+closeCheckout();
+closeOrders();
+closeZoom();
+
+}
+
+});
+
+
+/* START */
+
+createCategories();
+renderProducts();
+
 </script>
 
 </body>
 </html>
-kicks4u/
-│
-├── server.js
-├── package.json
-├── .env
-├── kicks4u.db
-│
-└── public/
-    ├── index.html
-    │
-    └── images/
-        ├── aero-front.jpg
-        ├── aero-side.jpg
-        ├── aero-back.jpg
-        ├── aero-top.jpg
-        ├── aero-sole.jpg
-        ├── velocity-front.jpg
-        ├── velocity-side.jpg
-        ├── velocity-back.jpg
-        ├── velocity-top.jpg
-        ├── velocity-sole.jpg
-        └── ...
