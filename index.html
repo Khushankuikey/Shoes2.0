@@ -1485,3 +1485,755 @@ render();
 
 </body>
 </html>
+<script>
+/* ============================================================
+   KICKS4U — SMART STORE ASSISTANT v2
+   Replace your old reply() + chatSend() with this block.
+   ============================================================ */
+
+const K4U_ASSISTANT = {
+
+    store: {
+        name: "KICKS4U",
+        upi: "6260155319@upi",
+        whatsapp: "916260155319",
+        delivery: "within 14 days",
+        cod: false,
+        replacement: false
+    },
+
+    /* ---------- PRODUCT KNOWLEDGE ---------- */
+
+    getProducts() {
+        return Array.isArray(window.products) ? window.products : [];
+    },
+
+    categories() {
+        const p = this.getProducts();
+        return [...new Set(p.map(x => x.category).filter(Boolean))];
+    },
+
+    findProduct(query) {
+        const products = this.getProducts();
+        const q = query.toLowerCase();
+
+        return products.find(p =>
+            String(p.name || "").toLowerCase().includes(q)
+        );
+    },
+
+    findCategory(query) {
+        const products = this.getProducts();
+        const q = query.toLowerCase();
+
+        const category = this.categories().find(c =>
+            q.includes(String(c).toLowerCase())
+        );
+
+        if (!category) return [];
+
+        return products.filter(p =>
+            String(p.category).toLowerCase() === category.toLowerCase()
+        );
+    },
+
+    priceRange(products) {
+        if (!products.length) return null;
+
+        const prices = products
+            .map(p => Number(p.price))
+            .filter(Number.isFinite);
+
+        if (!prices.length) return null;
+
+        return {
+            min: Math.min(...prices),
+            max: Math.max(...prices)
+        };
+    },
+
+    money(n) {
+        return "₹" + Number(n || 0).toLocaleString("en-IN");
+    },
+
+    productCardText(p) {
+        return `• ${p.name} — ${this.money(p.price)}`;
+    },
+
+
+    /* ---------- SMART RECOMMENDATIONS ---------- */
+
+    recommend(query) {
+
+        const products = this.getProducts();
+        const q = query.toLowerCase();
+
+        if (!products.length) {
+            return "Products abhi load nahi hue hain. Thodi der baad try karo.";
+        }
+
+        let results = [];
+
+        if (
+            q.includes("running") ||
+            q.includes("run") ||
+            q.includes("jog") ||
+            q.includes("gym")
+        ) {
+            results = products.filter(p =>
+                /running|sport|athletic|training|gym/i.test(
+                    `${p.category} ${p.name} ${p.use || ""} ${p.description || ""}`
+                )
+            );
+        }
+
+        else if (
+            q.includes("formal") ||
+            q.includes("office") ||
+            q.includes("school")
+        ) {
+            results = products.filter(p =>
+                /formal|office|derby|oxford/i.test(
+                    `${p.category} ${p.name} ${p.use || ""}`
+                )
+            );
+        }
+
+        else if (
+            q.includes("slipper") ||
+            q.includes("slide") ||
+            q.includes("chappal") ||
+            q.includes("home")
+        ) {
+            results = products.filter(p =>
+                /slipper|slide|chappal/i.test(
+                    `${p.category} ${p.name}`
+                )
+            );
+        }
+
+        else if (
+            q.includes("sandal") ||
+            q.includes("sandals")
+        ) {
+            results = products.filter(p =>
+                /sandal/i.test(`${p.category} ${p.name}`)
+            );
+        }
+
+        else if (
+            q.includes("boot") ||
+            q.includes("boots")
+        ) {
+            results = products.filter(p =>
+                /boot/i.test(`${p.category} ${p.name}`)
+            );
+        }
+
+        else if (
+            q.includes("casual") ||
+            q.includes("daily") ||
+            q.includes("everyday")
+        ) {
+            results = products.filter(p =>
+                /casual|daily|everyday/i.test(
+                    `${p.category} ${p.name} ${p.use || ""} ${p.description || ""}`
+                )
+            );
+        }
+
+        else {
+            results = products.slice(0, 5);
+        }
+
+        if (!results.length) {
+            return "Is requirement ke liye exact match nahi mila. Aap budget ya footwear type bata do, main better options suggest karunga.";
+        }
+
+        results = results.slice(0, 4);
+
+        return (
+            "Bilkul 👟 Aapke requirement ke hisaab se ye options dekh sakte ho:\n\n" +
+            results.map(p => this.productCardText(p)).join("\n") +
+            "\n\nAgar aap budget bata do, main shortlist aur narrow kar sakta hoon."
+        );
+    },
+
+
+    /* ---------- BUDGET LOGIC ---------- */
+
+    budgetRecommendation(query) {
+
+        const products = this.getProducts();
+
+        const numbers = query.match(/\d[\d,]*/g);
+
+        if (!numbers || !numbers.length) {
+            return null;
+        }
+
+        const budget = Number(numbers[numbers.length - 1].replace(/,/g, ""));
+
+        if (!Number.isFinite(budget)) {
+            return null;
+        }
+
+        const affordable = products
+            .filter(p => Number(p.price) <= budget)
+            .sort((a,b) => Number(b.price) - Number(a.price))
+            .slice(0, 5);
+
+        if (!affordable.length) {
+            return `₹${budget.toLocaleString("en-IN")} ke andar abhi suitable product nahi mila. Aap budget thoda increase karke try kar sakte ho.`;
+        }
+
+        return (
+            `₹${budget.toLocaleString("en-IN")} ke budget mein ye options mil rahe hain:\n\n` +
+            affordable.map(p => this.productCardText(p)).join("\n") +
+            "\n\nInme se kisi product ko open karke detailed information aur gallery dekh sakte ho."
+        );
+    },
+
+
+    /* ---------- CATEGORY LOGIC ---------- */
+
+    categoryAnswer(query) {
+
+        const products = this.getProducts();
+        const q = query.toLowerCase();
+
+        const category = this.categories().find(c =>
+            q.includes(String(c).toLowerCase())
+        );
+
+        if (!category) return null;
+
+        const list = products.filter(p =>
+            String(p.category).toLowerCase() === category.toLowerCase()
+        );
+
+        if (!list.length) {
+            return `${category} section mein abhi products available nahi hain.`;
+        }
+
+        const range = this.priceRange(list);
+
+        return (
+            `👟 ${category} collection available hai.\n\n` +
+            list.slice(0, 5)
+                .map(p => this.productCardText(p))
+                .join("\n") +
+            (range
+                ? `\n\nPrice range: ${this.money(range.min)} – ${this.money(range.max)}`
+                : "") +
+            `\n\nAap "₹1000 ke andar ${category}" jaisa bhi pooch sakte ho.`
+        );
+    },
+
+
+    /* ---------- PRODUCT DETAIL LOGIC ---------- */
+
+    productAnswer(query) {
+
+        const products = this.getProducts();
+        const q = query.toLowerCase();
+
+        const product = products.find(p => {
+
+            const name = String(p.name || "").toLowerCase();
+
+            const words = name
+                .split(/\s+/)
+                .filter(x => x.length > 3);
+
+            return words.some(word => q.includes(word));
+        });
+
+        if (!product) return null;
+
+        return (
+            `👟 ${product.name}\n\n` +
+            `Price: ${this.money(product.price)}\n` +
+            `Category: ${product.category || "Footwear"}\n\n` +
+            `${product.desc || product.description || "Product details available on the product page."}\n\n` +
+            `Material: ${product.material || "Product page par check karein"}\n` +
+            `Use: ${product.use || product.use_case || "Daily use"}\n` +
+            `Construction: ${product.construction || "Product details mein available"}\n` +
+            `Care: ${product.care || "Product care instructions follow karein"}\n\n` +
+            `💡 Product card par VIEW/Buy option se complete gallery aur details dekh sakte ho.`
+        );
+    },
+
+
+    /* ---------- PAYMENT ---------- */
+
+    paymentAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("cod") ||
+            q.includes("cash on delivery") ||
+            q.includes("cash")
+        ) {
+            return (
+                "COD currently available nahi hai. ❌\n\n" +
+                "KICKS4U online payment accept karta hai.\n" +
+                `UPI ID: ${this.store.upi}\n\n` +
+                "Checkout ke baad UPI QR ya UPI App option use kar sakte ho."
+            );
+        }
+
+        if (
+            q.includes("upi") ||
+            q.includes("gpay") ||
+            q.includes("google pay") ||
+            q.includes("phonepe") ||
+            q.includes("paytm") ||
+            q.includes("payment") ||
+            q.includes("pay")
+        ) {
+            return (
+                "💳 Payment ke liye UPI available hai.\n\n" +
+                `UPI ID: ${this.store.upi}\n\n` +
+                "Checkout → Payment → QR scan ya Open UPI App.\n\n" +
+                "⚠️ Payment successful tabhi maana jayega jab transaction genuinely verify ho."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- DELIVERY ---------- */
+
+    deliveryAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("delivery") ||
+            q.includes("deliver") ||
+            q.includes("kab") ||
+            q.includes("kitne din") ||
+            q.includes("how long")
+        ) {
+            return (
+                "🚚 KICKS4U ka stated delivery window **within 14 days** hai.\n\n" +
+                "Order confirmation ke baad delivery process start hota hai. " +
+                "Exact status My Orders section se check kiya ja sakta hai."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- POLICY ---------- */
+
+    policyAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("replacement") ||
+            q.includes("replace") ||
+            q.includes("return") ||
+            q.includes("refund")
+        ) {
+            return (
+                "📋 Current store policy:\n\n" +
+                "• Replacement: Available nahi hai\n" +
+                "• COD: Available nahi hai\n" +
+                "• Payment: Online only\n" +
+                "• Delivery: Within 14 days\n\n" +
+                "Order place karne se pehle product details aur size/information carefully check karna best rahega."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- ORDER LOGIC ---------- */
+
+    orderAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("my order") ||
+            q.includes("order status") ||
+            q.includes("track") ||
+            q.includes("tracking") ||
+            q.includes("mera order")
+        ) {
+            return (
+                "📦 Order check karne ke liye:\n\n" +
+                "1. My Orders open karo.\n" +
+                "2. Checkout mein use kiya hua 10-digit WhatsApp number enter karo.\n" +
+                "3. Search dabao.\n\n" +
+                "Wahan available order status aur invoice dekh sakte ho."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- INVOICE ---------- */
+
+    invoiceAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("invoice") ||
+            q.includes("bill") ||
+            q.includes("receipt")
+        ) {
+            return (
+                "🧾 Invoice ke liye My Orders open karo → apna order search karo → " +
+                "\"View Invoice\" select karo.\n\n" +
+                "Invoice ko Print / Save PDF se PDF ke roop mein save kiya ja sakta hai."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- LOCATION ---------- */
+
+    locationAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("location") ||
+            q.includes("address") ||
+            q.includes("google map") ||
+            q.includes("gps")
+        ) {
+            return (
+                "📍 Checkout page par \"Google Location\" button use kar sakte ho.\n\n" +
+                "Location permission allow karne ke baad Maps location address field mein add ho jayegi. " +
+                "House/Flat number, Street aur PIN manually complete karna zaroori hai."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- SIZE / PRODUCT ADVICE ---------- */
+
+    sizeAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("size") ||
+            q.includes("fit") ||
+            q.includes("fitting")
+        ) {
+            return (
+                "📏 Size choose karte waqt apna usual footwear size aur available product size chart ko priority do.\n\n" +
+                "Agar product ke saath size chart diya hai, purchase se pehle usko check karna safest hai."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- MATERIAL / QUALITY ---------- */
+
+    qualityAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("quality") ||
+            q.includes("material") ||
+            q.includes("strong") ||
+            q.includes("durable") ||
+            q.includes("longevity") ||
+            q.includes("long lasting")
+        ) {
+            return (
+                "🔎 Quality product-to-product depend karti hai.\n\n" +
+                "Main material, sole/construction aur care information product details se compare karne ki recommendation dunga. " +
+                "Exact lifespan ka fixed promise nahi karna chahiye kyunki usage, surface aur maintenance se durability change hoti hai."
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- SUPPORT ---------- */
+
+    supportAnswer(query) {
+
+        const q = query.toLowerCase();
+
+        if (
+            q.includes("support") ||
+            q.includes("help") ||
+            q.includes("customer care") ||
+            q.includes("contact") ||
+            q.includes("whatsapp")
+        ) {
+            return (
+                "💬 Main basic KICKS4U queries mein help kar sakta hoon.\n\n" +
+                "Agar human support chahiye to WhatsApp Support use karo:\n" +
+                "6260155319"
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- GREETING ---------- */
+
+    greeting(query) {
+
+        const q = query.toLowerCase().trim();
+
+        if (
+            /^(hi|hello|hey|hii|helo|namaste|namaskar|yo|bro|bhai)\b/.test(q)
+        ) {
+            return (
+                "Hey 👋 Welcome to KICKS4U!\n\n" +
+                "Main aapko products, budget recommendations, payment, delivery, orders, invoice aur store policies mein help kar sakta hoon.\n\n" +
+                "Example: \"₹1500 ke andar running shoes dikhao\""
+            );
+        }
+
+        return null;
+    },
+
+
+    /* ---------- FALLBACK ---------- */
+
+    fallback(query) {
+
+        const categories = this.categories();
+
+        return (
+            "Main is query ka reliable answer abhi nahi de pa raha hoon — guess karna better nahi hoga. 🙂\n\n" +
+            "Aap inme se kuch pooch sakte ho:\n\n" +
+            "👟 \"Running shoes suggest karo\"\n" +
+            "💰 \"₹1500 ke andar shoes dikhao\"\n" +
+            "💳 \"UPI payment kaise karu?\"\n" +
+            "🚚 \"Delivery kitne din mein hogi?\"\n" +
+            "📦 \"Mera order kaise track karu?\"\n" +
+            "🧾 \"Invoice kaise milega?\"\n" +
+            "📍 \"Address location kaise add karu?\"\n" +
+            "🔎 \"Material aur quality batao\"\n\n" +
+            (categories.length
+                ? `Available sections: ${categories.join(", ")}`
+                : "")
+        );
+    },
+
+
+    /* ---------- MASTER BRAIN ---------- */
+
+    answer(query) {
+
+        const q = String(query || "").trim();
+
+        if (!q) {
+            return "Kuch poochho 👋";
+        }
+
+        /*
+         * Order matters:
+         * specific questions first,
+         * generic fallback last.
+         */
+
+        let answer;
+
+        answer = this.greeting(q);
+        if (answer) return answer;
+
+        answer = this.budgetRecommendation(q);
+        if (answer) return answer;
+
+        answer = this.paymentAnswer(q);
+        if (answer) return answer;
+
+        answer = this.deliveryAnswer(q);
+        if (answer) return answer;
+
+        answer = this.orderAnswer(q);
+        if (answer) return answer;
+
+        answer = this.invoiceAnswer(q);
+        if (answer) return answer;
+
+        answer = this.policyAnswer(q);
+        if (answer) return answer;
+
+        answer = this.locationAnswer(q);
+        if (answer) return answer;
+
+        answer = this.sizeAnswer(q);
+        if (answer) return answer;
+
+        answer = this.qualityAnswer(q);
+        if (answer) return answer;
+
+        answer = this.supportAnswer(q);
+        if (answer) return answer;
+
+        answer = this.productAnswer(q);
+        if (answer) return answer;
+
+        answer = this.categoryAnswer(q);
+        if (answer) return answer;
+
+        if (
+            /recommend|suggest|best|acha|achha|which|kaunsa|konsa|dikhao|show/i
+            .test(q)
+        ) {
+            return this.recommend(q);
+        }
+
+        return this.fallback(q);
+    }
+};
+
+
+/* ============================================================
+   CHAT UI
+   ============================================================ */
+
+function k4uAddMessage(text, user = false) {
+
+    const box = document.getElementById("messages");
+
+    if (!box) return;
+
+    const message = document.createElement("div");
+
+    message.className = user
+        ? "bg-indigo-600 text-white p-3 rounded-2xl ml-8 text-sm whitespace-pre-line"
+        : "bg-slate-100 text-slate-800 p-3 rounded-2xl mr-8 text-sm whitespace-pre-line";
+
+    message.textContent = text;
+
+    box.appendChild(message);
+
+    box.scrollTop = box.scrollHeight;
+}
+
+
+/* ---------- QUICK SUGGESTION BUTTONS ---------- */
+
+function k4uQuickSuggestions() {
+
+    const box = document.getElementById("messages");
+
+    if (!box) return;
+
+    if (document.getElementById("k4uQuickButtons")) return;
+
+    const wrap = document.createElement("div");
+
+    wrap.id = "k4uQuickButtons";
+
+    wrap.className = "flex gap-2 flex-wrap mt-2";
+
+    const suggestions = [
+        "₹1500 ke andar shoes",
+        "Running shoes suggest karo",
+        "UPI payment kaise karu?",
+        "Delivery kitne din?",
+        "Mera order kaise track karu?",
+        "Invoice kaise milega?"
+    ];
+
+    suggestions.forEach(text => {
+
+        const button = document.createElement("button");
+
+        button.type = "button";
+
+        button.className =
+            "border border-slate-200 bg-white hover:bg-indigo-50 px-3 py-2 rounded-full text-xs font-bold";
+
+        button.textContent = text;
+
+        button.onclick = () => {
+
+            const input = document.getElementById("chatInput");
+
+            if (input) {
+                input.value = text;
+                input.focus();
+            }
+
+        };
+
+        wrap.appendChild(button);
+
+    });
+
+    box.appendChild(wrap);
+}
+
+
+/* ---------- NEW CHAT SEND ---------- */
+
+function chatSend(e) {
+
+    if (e) e.preventDefault();
+
+    const input = document.getElementById("chatInput");
+
+    if (!input) return;
+
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    k4uAddMessage(text, true);
+
+    input.value = "";
+
+    const typing = document.createElement("div");
+
+    typing.id = "k4uTyping";
+
+    typing.className =
+        "bg-slate-100 p-3 rounded-2xl mr-8 text-sm text-slate-500";
+
+    typing.textContent = "KICKS4U Assistant is thinking…";
+
+    messages.appendChild(typing);
+
+    messages.scrollTop = messages.scrollHeight;
+
+    setTimeout(() => {
+
+        const t = document.getElementById("k4uTyping");
+
+        if (t) t.remove();
+
+        const response = K4U_ASSISTANT.answer(text);
+
+        k4uAddMessage(response, false);
+
+    }, 350);
+
+}
+
+
+/* ---------- STARTUP ---------- */
+
+document.addEventListener("DOMContentLoaded", () =>
